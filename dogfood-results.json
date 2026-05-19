@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/cathrynlavery/Developer/mvanhorn/printing-press-library/library/follow-up-boss",
-  "spec_path": "/Users/cathrynlavery/Developer/mvanhorn/printing-press-library/library/follow-up-boss/spec.yaml",
+  "dir": "\u003ccli-dir\u003e/follow-up-boss",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
   "verdict": "PASS",
   "path_check": {
     "tested": 4,

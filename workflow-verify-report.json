@@ -13,22 +13,22 @@
         {
           "command": "agent-crm followup-gaps --db local",
           "status": "pass",
-          "output": "{\n  \"generated_at\": \"2026-05-19T00:11:45-05:00\",\n  \"data_status\": \"empty_local_store\",\n  \"db_path\": \"local\",\n  \"resource_counts\": {},\n  \"items\": []\n}\n"
+          "output": "{\n  \"generated_at\": \"2026-05-19T01:16:50-05:00\",\n  \"data_status\": \"empty_local_store\",\n  \"db_path\": \"local\",\n  \"resource_counts\": {},\n  \"items\": []\n}\n"
         },
         {
           "command": "agent-crm speed-to-lead --db local",
           "status": "pass",
-          "output": "{\n  \"generated_at\": \"2026-05-19T00:11:45-05:00\",\n  \"data_status\": \"empty_local_store\",\n  \"db_path\": \"local\",\n  \"resource_counts\": {},\n  \"items\": []\n}\n"
+          "output": "{\n  \"generated_at\": \"2026-05-19T01:16:50-05:00\",\n  \"data_status\": \"empty_local_store\",\n  \"db_path\": \"local\",\n  \"resource_counts\": {},\n  \"items\": []\n}\n"
         },
         {
           "command": "agent-crm data-quality --db local",
           "status": "pass",
-          "output": "{\n  \"generated_at\": \"2026-05-19T00:11:45-05:00\",\n  \"data_status\": \"empty_local_store\",\n  \"db_path\": \"local\",\n  \"resource_counts\": {},\n  \"items\": []\n}\n"
+          "output": "{\n  \"generated_at\": \"2026-05-19T01:16:50-05:00\",\n  \"data_status\": \"empty_local_store\",\n  \"db_path\": \"local\",\n  \"resource_counts\": {},\n  \"items\": []\n}\n"
         },
         {
           "command": "agent-crm next-actions --db local",
           "status": "pass",
-          "output": "{\n  \"generated_at\": \"2026-05-19T00:11:45-05:00\",\n  \"data_status\": \"empty_local_store\",\n  \"db_path\": \"local\",\n  \"resource_counts\": {},\n  \"items\": []\n}\n"
+          "output": "{\n  \"generated_at\": \"2026-05-19T01:16:50-05:00\",\n  \"data_status\": \"empty_local_store\",\n  \"db_path\": \"local\",\n  \"resource_counts\": {},\n  \"items\": []\n}\n"
         }
       ],
       "verdict": "workflow-pass"
