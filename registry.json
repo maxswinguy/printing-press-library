@@ -2810,6 +2810,28 @@
       }
     },
     {
+      "name": "usgs-earthquakes",
+      "category": "other",
+      "api": "USGS Earthquakes",
+      "description": "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a...",
+      "path": "library/other/usgs-earthquakes",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "usgs-earthquakes-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 7,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "uspto-tsdr",
       "category": "developer-tools",
       "api": "Tsdr",
