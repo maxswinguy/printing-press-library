@@ -228,3 +228,12 @@ jobs:
         run: |
           set -euo pipefail
           go run ./tools/generate-registry/main.go --validate
+
+      - name: Validate library SKILL.md sources
+        # Reject PRs whose library manifests point at missing or empty
+        # library/<cat>/<slug>/SKILL.md files before the post-merge
+        # generate-skills workflow gets a chance to partially mirror
+        # cli-skills/ output and then fail.
+        run: |
+          set -euo pipefail
+          go run ./tools/generate-skills/main.go --validate

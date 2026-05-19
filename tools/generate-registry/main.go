@@ -348,9 +348,9 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 	// match what sources would emit. Curated values that diverged from both
 	// sources lived only in `registry.json` and would silently degrade if
 	// regen ever started from scratch. Making `.printing-press.json` the
-	// authority and backfilling the 26 curated-divergent CLIs (see
-	// docs/plans/2026-05-18-002-...) means the registry is now fully
-	// reproducible from `library/<cat>/<slug>/` source files alone.
+	// authority and backfilling affected manifests (see
+	// docs/plans/2026-05-18-002-...) means the registry is now reproducible
+	// from `library/<cat>/<slug>/` source files alone.
 	//
 	// Bare-markdown-heading exception still applies only to the prior tier
 	// (legacy generator bug). `.printing-press.json` and `.goreleaser.yaml`

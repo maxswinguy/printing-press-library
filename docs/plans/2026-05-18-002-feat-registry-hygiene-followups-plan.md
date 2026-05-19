@@ -24,9 +24,9 @@ This plan addresses all four:
 
 ## Requirements
 
-- R1. After this plan ships, deleting `registry.json` and running `go run ./tools/generate-registry/main.go` from scratch (no prior registry to seed `description`) must produce a registry equal to the current `main`'s `registry.json` for the description field of all 134 CLIs.
+- R1. After this plan ships, deleting `registry.json` and running `go run ./tools/generate-registry/main.go` from scratch (no prior registry to seed `description`) must produce descriptions from source files for all 140 CLIs. Known intentional one-time registry deltas are description refreshes for amazon-orders, american-reindustrialization, anylist, conduyt-crm, facebook-marketplace, roam, and usgs-earthquakes plus corrected MCP tool counts for conduyt-crm, roam, and squarespace.
 - R2. `validateEntries` must reject every shape that the npm installer's `parseRegistryEntry` would throw on AND that the existing MCPB / scorecard tools depend on (`mcp.tool_count > 0` when an MCP block is present, `mcp.env_vars` as a JSON array, `mcp.public_tool_count` as a number when present).
-- R3. `tools/generate-skills/main.go` must support `--validate` that exits non-zero with named-slug errors when any library SKILL.md is missing or empty, and must NOT write any cli-skills/ output in validate mode.
+- R3. `tools/generate-skills/main.go` must support `--validate` that exits non-zero with named-slug errors when any library SKILL.md is missing or empty, must NOT write any cli-skills/ output in validate mode, and must be run by the PR-time library-conventions workflow.
 - R4. After merging a PR that bumps `npm/package.json`'s `version`, the published npm package must update without manual intervention; no human or agent should need to run `gh workflow run npm-publish.yml`.
 
 ## Scope Boundaries
@@ -34,7 +34,7 @@ This plan addresses all four:
 ### In scope
 
 - Reorder `registryDescription`'s preference chain in `tools/generate-registry/main.go`.
-- Backfill `description` in every `.printing-press.json` whose corresponding registry value would change under the new preference order. (26 curated-divergent CLIs minimum; more if reorder shifts other entries.)
+- Backfill `description` in every `.printing-press.json` whose corresponding registry value would change under the new preference order, except where the source manifest already has materially better catalog copy and the one-time registry delta is intentional.
 - Expand `validateEntries` to cover the new MCP-block invariants in R2 and grow the test matrix accordingly.
 - Add `--validate` flag to `tools/generate-skills/main.go` plus tests.
 - Replace `GITHUB_TOKEN` with the existing `ADMIN_PUSH_PAT` secret in `auto-tag-npm.yml`'s checkout, matching the pattern already used by `generate-registry.yml`.
@@ -60,7 +60,7 @@ The bare-markdown-heading exception (line 348-355 in `tools/generate-registry/ma
 
 ### KD2. Backfill targets are determined by regenerating and diffing, not from the static audit
 
-The static audit found 26 "curated-divergent" CLIs (registry value differs from both source files). But the real question is: after reordering preferences, would any registry entry's description change? That includes the 26 divergent CLIs plus any CLI where `.printing-press.json` description differs from what the current registry shows (because today's order has `.printing-press.json` last). U1 implements the reorder first, regenerates, and lets the diff against current `main`'s registry name the exact set of pp manifests to backfill. This avoids missing edge cases and avoids backfilling entries that don't need it.
+The static audit found 26 "curated-divergent" CLIs (registry value differs from both source files). But the real question is: after reordering preferences, would any registry entry's description change? That includes the 26 divergent CLIs plus any CLI where `.printing-press.json` description differs from what the current registry shows (because today's order has `.printing-press.json` last). U1 implements the reorder first, regenerates, and lets the diff against current `main`'s registry name the exact set of pp manifests to backfill or intentionally preserve. This avoids missing edge cases and avoids backfilling entries that don't need it.
 
 ### KD3. MCP validation set mirrors what production consumers actually require
 
@@ -80,10 +80,10 @@ Alternative considered: `workflow_run` chaining (have `npm-publish.yml` trigger 
 
 ## System-Wide Impact
 
-- **`registry.json` consumers**: under R1 + KD1, every entry's `description` becomes derived from a source file, so deleting and regenerating is safe. The on-disk value of `registry.json` should not change for any of the 134 entries after this plan ships (verified in U1's regenerate-and-diff step).
+- **`registry.json` consumers**: under R1 + KD1, every entry's `description` becomes derived from a source file, so deleting and regenerating is safe. The generated registry should have only the intentional one-time deltas called out in R1.
 - **`.printing-press.json` authors going forward**: the publish skill in `cli-printing-press` already writes `description` from `narrative.headline`. After this plan, that value becomes the canonical source for the registry catalog row. No publish-side change needed.
 - **Homebrew tap**: untouched. `.goreleaser.yaml` brews `description` still feeds it.
-- **PR authors after this plan**: same `--validate` gate at PR time, with one expanded check (MCP fields). Same `verify-library-conventions` step name.
+- **PR authors after this plan**: same registry `--validate` gate at PR time, with expanded MCP checks, plus a new `tools/generate-skills --validate` gate for missing or empty source SKILL.md files.
 - **NPM release rhythm**: under R4 + KD5, the "bump version → merge → npm package updates" flow no longer requires manual `workflow_dispatch`. The auto-tag workflow's documentation comment ("npm-publish.yml will run on the tag event.") becomes accurate.
 
 ## Implementation Units
@@ -96,20 +96,20 @@ Alternative considered: `workflow_run` chaining (have `npm-publish.yml` trigger 
 - **Files:**
   - `tools/generate-registry/main.go` (reorder `registryDescription`, update its docstring + the call-site comment in `buildEntry`)
   - `tools/generate-registry/main_test.go` (update existing `TestRegistryDescription` cases to assert new order; add regression case for prior-curated-only entry)
-  - 26+ `library/<cat>/<slug>/.printing-press.json` files (data backfills; final list determined by U1.4)
+  - affected `library/<cat>/<slug>/.printing-press.json` files (data backfills; final list determined by U1.4)
 - **Approach:**
   1. Reorder `registryDescription(prior, goreleaser, pp)` to return `pp > goreleaser > prior > ""`. The bare-markdown-heading exception still applies only to `prior`.
   2. Run `go run ./tools/generate-registry/main.go --print | diff - registry.json` to identify every CLI whose description would change under the new order.
-  3. For each diverging CLI, copy the CURRENT `registry.json` description value verbatim into that CLI's `.printing-press.json` `description` field. Field placement follows the modern manifest shape (after `display_name`).
-  4. Re-run the diff and confirm it's empty. If any CLI still diverges, it's because its `.printing-press.json` has a different description from registry — investigate per-CLI whether to update pp or accept the change. Stop the unit until the diff is empty.
+  3. For each diverging CLI, either copy the CURRENT `registry.json` description value verbatim into that CLI's `.printing-press.json` `description` field or intentionally keep the richer source manifest text when the current registry value is truncated or lower quality. Field placement follows the modern manifest shape.
+  4. Re-run the diff and confirm only intentional deltas remain. If any unexpected CLI still diverges, it's because its `.printing-press.json` has a different description from registry — investigate per-CLI whether to update pp or accept the change.
   5. Update the docstring/comments on `registryDescription` and the call-site comment block in `buildEntry` to reflect the new order. The "Description preference" block in `buildEntry` is the canonical place to document the reorder rationale.
 - **Patterns to follow:** the existing field-order shape in modern `.printing-press.json` files (suno's manifest is a clean reference). The docstring style on `registryDescription` and `validateEntries`.
 - **Test scenarios:**
   - `TestRegistryDescription`: existing case "curated copy wins over both fallbacks" flips — pp now wins over curated; rename + update assertion. Existing case "bare-heading prior falls through to goreleaser" must extend to "bare-heading prior with pp populated returns pp." Add: "only-prior populated" returns prior (legacy entries with no source files still resolve).
-  - Integration regression: running the generator twice produces a byte-identical `registry.json` (uses existing on-disk test infrastructure if any; otherwise add a dedicated table-driven test that takes a slug-tree fixture and asserts the resolved description).
+  - Integration regression: running the generator twice produces stable output (uses existing on-disk test infrastructure if any; otherwise add a dedicated table-driven test that takes a slug-tree fixture and asserts the resolved description).
 - **Verification:**
   - `go test ./...` from `tools/generate-registry/` passes.
-  - `go run ./tools/generate-registry/main.go --print | diff - registry.json` exits 0 (byte-identical registry after backfill + reorder).
+  - `go run ./tools/generate-registry/main.go --print | diff - registry.json` shows only the intentional registry deltas from R1.
   - `go run ./tools/generate-registry/main.go --validate` exits 0.
 
 ### U2. Expand `validateEntries` to cover additional MCP-block invariants
@@ -180,15 +180,15 @@ Alternative considered: `workflow_run` chaining (have `npm-publish.yml` trigger 
 
 ## Risks
 
-- **U1 risk:** Reordering preference shifts the "default" source. If a `.printing-press.json` description differs from the current registry value AND U1.4's regenerate-and-diff doesn't catch it, the registry text changes silently for that CLI. Mitigated by KD2: the unit's verification is "diff is empty" — any unhandled divergence fails the verification and forces investigation.
-- **U2 risk:** Tightening `mcp.tool_count > 0` could reject any CLI that legitimately ships a zero-tool MCP block. Reality check: such a CLI isn't useful as an MCP target; if one exists, it should remove the `mcp:` block entirely rather than declare zero tools. Verified against current registry (`jq '.entries[] | select(.mcp.tool_count == 0) | .name'` returns nothing) before shipping.
+- **U1 risk:** Reordering preference shifts the "default" source. If a `.printing-press.json` description differs from the current registry value AND U1.4's regenerate-and-diff doesn't catch it, the registry text changes silently for that CLI. Mitigated by KD2: the unit's verification is "diff contains only intentional deltas" — any unhandled divergence fails the verification and forces investigation.
+- **U2 risk:** Tightening `mcp.tool_count > 0` could reject any CLI that legitimately ships a zero-tool MCP block. Reality check: such a CLI isn't useful as an MCP target; if one exists, it should remove the `mcp:` block entirely rather than declare zero tools. The source backfills make `go run ./tools/generate-registry/main.go --validate` pass before shipping.
 - **U3 risk:** None known. The validate mode is read-only; the existing `verify-skills.yml` already covers SKILL.md content validation.
 - **U4 risk:** `ADMIN_PUSH_PAT` has elevated privileges; using it on a path that's currently `GITHUB_TOKEN` widens the blast radius if the workflow is ever compromised. Mitigated: the workflow only triggers on `npm/package.json` changes to `main`, which already requires a merged PR — the same gate that protected the prior generate-registry workflow's use of the same PAT.
 
 ## Verification
 
 - All Go tests pass: `cd tools/generate-registry && go test ./...`; `cd tools/generate-skills && go test ./...`.
-- `go run ./tools/generate-registry/main.go --print | diff - registry.json` exits 0 (R1).
+- `go run ./tools/generate-registry/main.go --print | diff - registry.json` shows only the intentional R1 deltas.
 - `go run ./tools/generate-registry/main.go --validate` exits 0 with the expanded MCP checks active.
 - `go run ./tools/generate-skills/main.go --validate` exits 0 against the live library tree.
 - `verify-library-conventions.yml` passes on the PR (re-runs the existing gate plus the new MCP checks).
