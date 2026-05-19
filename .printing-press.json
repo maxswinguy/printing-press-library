@@ -32,5 +32,7 @@
     "agent-native-crm-local-reasoning"
   ],
   "printing_press_commit_sha": "b6f1fae8d028e20347382157d46f6dee0e768778",
-  "printing_press_library_commit_sha": "fb477915cf79c2e3de4f7089d8ef05634eb326b8"
+  "printing_press_library_commit_sha": "fb477915cf79c2e3de4f7089d8ef05634eb326b8",
+  "sha256": "d56f040e8a8997c32d001cdbadddf9c25c2eaba698aa791d68ecc00e14eb302e",
+  "binary_generated_at": "2026-05-19T06:19:18Z"
 }
