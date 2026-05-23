@@ -31,6 +31,14 @@
       ],
       "validated_outcome": "topic kanye returns the same hit count as topic kanye-west; topic 'NBA Western Conference Finals' surfaces KXNBAWEST; topic 2026-world-cup force-includes USA; polymarket siblings will-ghana-win-the-2026-fifa-world-cup includes the USA market with non-null yesPercent; kalshi sync backfills active high-volume markets; compare returns structured unpaired diagnostic on no-pair; mispriced skips untraded; new commands registered.",
       "upstream_issue": "Pending: file against mvanhorn/cli-printing-press to backport ranker + discovery shape into the generator templates."
+    },
+    {
+      "id": "wal-pragmas-via-connection-hook",
+      "summary": "Apply journal_mode=WAL and busy_timeout=5000 via sqlite.RegisterConnectionHook because DSN-level _journal_mode/_busy_timeout params are silently ignored by modernc.org/sqlite v1.37.0.",
+      "reason": "Live store opened with the DSN-style pragma params still reported PRAGMA journal_mode=delete and busy_timeout=0, which is the root cause of the SQLITE_BUSY failures observed during concurrent topic queries and during kalshi sync. Connection hook is the only reliable path.",
+      "files": ["internal/store/store.go", "internal/store/store_concurrency_test.go"],
+      "validated_outcome": "go test ./internal/store/... passes (76 tests including 4 new concurrency tests). Live db now reports journal_mode=wal, busy_timeout=5000.",
+      "upstream_issue": "Generator template should switch from DSN-pragma to connection-hook approach for all printed CLIs that use modernc.org/sqlite."
     }
   ]
 }
