@@ -36,11 +36,14 @@ type topicResult struct {
 func newTopicCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var dbPath string
+	var vf venueFlags
 	cmd := &cobra.Command{
 		Use:   "topic <name>",
 		Short: "Cross-venue topic bundle (slim ranked markets/events/tags from Polymarket and Kalshi)",
 		Example: `  prediction-goat-pp-cli topic kanye-west --json
-  prediction-goat-pp-cli topic 'arizona basketball' --limit 20`,
+  prediction-goat-pp-cli topic 'arizona basketball' --limit 20
+  prediction-goat-pp-cli topic 'world cup' --kalshi   # skip Polymarket
+  prediction-goat-pp-cli topic 'world cup' --polymarket --agent`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -48,6 +51,10 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 			}
 			if dryRunOK(flags) {
 				return nil
+			}
+			venue, err := resolveVenue(vf)
+			if err != nil {
+				return err
 			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("prediction-goat-pp-cli")
@@ -62,16 +69,22 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 			// venue (Kalshi has events+series+markets, Polymarket has
 			// markets+events+tags) cannot crowd the other out via raw rank.
 			// Each side gets up to `limit` rows; they are then interleaved
-			// round-robin and trimmed to the final `limit`.
+			// round-robin and trimmed to the final `limit`. When the user
+			// scopes to a single venue, only that side runs.
 			polyTypes := []string{"markets", "events", "tags"}
 			kalshiTypes := []string{"kalshi_markets", "kalshi_events", "kalshi_series"}
-			polyHits, err := topicSearchByTypes(cmd.Context(), db.DB(), topicFTSQuery(topic), polyTypes, limit)
-			if err != nil {
-				return fmt.Errorf("topic search polymarket: %w", err)
+			var polyHits, kalshiHits []topicHit
+			if venue == "all" || venue == "polymarket" {
+				polyHits, err = topicSearchByTypes(cmd.Context(), db.DB(), topicFTSQuery(topic), polyTypes, limit)
+				if err != nil {
+					return fmt.Errorf("topic search polymarket: %w", err)
+				}
 			}
-			kalshiHits, err := topicSearchByTypes(cmd.Context(), db.DB(), topicFTSQuery(topic), kalshiTypes, limit)
-			if err != nil {
-				return fmt.Errorf("topic search kalshi: %w", err)
+			if venue == "all" || venue == "kalshi" {
+				kalshiHits, err = topicSearchByTypes(cmd.Context(), db.DB(), topicFTSQuery(topic), kalshiTypes, limit)
+				if err != nil {
+					return fmt.Errorf("topic search kalshi: %w", err)
+				}
 			}
 			results := interleaveTopicHits(polyHits, kalshiHits, limit)
 			result := topicResult{Topic: topic, Count: len(results), Hits: results}
@@ -90,6 +103,7 @@ func newTopicCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&limit, "limit", 50, "Max results")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
+	addVenueFlags(cmd, &vf)
 	return cmd
 }
 
