@@ -104,6 +104,22 @@ func (c *Client) get(ctx context.Context, path string, params url.Values) ([]byt
 	return body, resp.StatusCode, nil
 }
 
+// GetMarket fetches the detail payload for a single market ticker. Unlike
+// the /markets list endpoint, /markets/{ticker} includes price fields
+// (yes_ask_dollars, no_ask_dollars, last_price_dollars), which is the
+// backfill path the sync uses to enrich high-volume active markets after
+// the bulk list pass.
+func (c *Client) GetMarket(ctx context.Context, ticker string) ([]byte, error) {
+	if strings.TrimSpace(ticker) == "" {
+		return nil, fmt.Errorf("kalshi GetMarket: empty ticker")
+	}
+	body, err := c.Get(ctx, "/markets/"+ticker, nil)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
 func (c *Client) rateLimited() {
 	if c != nil && c.limiter != nil {
 		c.limiter.OnRateLimit()

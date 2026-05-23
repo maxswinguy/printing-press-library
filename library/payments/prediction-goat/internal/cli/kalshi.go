@@ -14,10 +14,19 @@ import (
 )
 
 type kalshiSyncSummary struct {
-	Markets int `json:"markets"`
-	Events  int `json:"events"`
-	Series  int `json:"series"`
-	Total   int `json:"total"`
+	Markets        int                  `json:"markets"`
+	Events         int                  `json:"events"`
+	Series         int                  `json:"series"`
+	Total          int                  `json:"total"`
+	PriceBackfill  *kalshiBackfillStats `json:"priceBackfill,omitempty"`
+}
+
+type kalshiBackfillStats struct {
+	Considered int     `json:"considered"`
+	Updated    int     `json:"updated"`
+	Skipped    int     `json:"skipped"`
+	Errors     int     `json:"errors"`
+	MinVolume  float64 `json:"minVolume"`
 }
 
 func newKalshiCmd(flags *rootFlags) *cobra.Command {
@@ -79,7 +88,25 @@ func newKalshiSyncCmd(flags *rootFlags) *cobra.Command {
 				}
 				fmt.Fprintf(cmd.ErrOrStderr(), "kalshi series: %d\n", series)
 			}
-			summary := kalshiSyncSummary{Markets: markets, Events: events, Series: series, Total: markets + events + series}
+			// Price backfill: the /markets list endpoint omits price
+			// fields, so high-volume active markets land in the local
+			// store with null bid/ask. Re-fetch each above the volume
+			// floor via /markets/{ticker} so cached rows carry real
+			// prices for topic/compare/mispriced. Best-effort: per-
+			// market failures log and continue.
+			var backfillStats *kalshiBackfillStats
+			if !dogfood {
+				minVolume := kalshi.ResolveBackfillMinVolume()
+				reader := kalshi.SQLiteBackfillReader{DB: db.DB()}
+				stats, bfErr := kalshi.BackfillMarketPrices(cmd.Context(), client, db, reader, minVolume)
+				if bfErr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "kalshi backfill (best-effort): %v\n", bfErr)
+				} else {
+					fmt.Fprintf(cmd.ErrOrStderr(), "kalshi backfill: considered %d, updated %d, skipped %d, errors %d (min volume %.0f)\n", stats.Considered, stats.Updated, stats.Skipped, stats.Errors, minVolume)
+				}
+				backfillStats = &kalshiBackfillStats{Considered: stats.Considered, Updated: stats.Updated, Skipped: stats.Skipped, Errors: stats.Errors, MinVolume: minVolume}
+			}
+			summary := kalshiSyncSummary{Markets: markets, Events: events, Series: series, Total: markets + events + series, PriceBackfill: backfillStats}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				return printJSONFiltered(cmd.OutOrStdout(), summary, flags)
 			}

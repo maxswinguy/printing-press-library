@@ -23,9 +23,12 @@ type mispricedPair struct {
 }
 
 type mispricedResult struct {
-	Threshold float64         `json:"threshold"`
-	Count     int             `json:"count"`
-	Pairs     []mispricedPair `json:"pairs"`
+	Threshold       float64         `json:"threshold"`
+	Count           int             `json:"count"`
+	Considered      int             `json:"considered,omitempty"`
+	UntradedSkipped int             `json:"untradedSkipped,omitempty"`
+	MaxDelta        float64         `json:"maxDelta,omitempty"`
+	Pairs           []mispricedPair `json:"pairs"`
 }
 
 func newMispricedCmd(flags *rootFlags) *cobra.Command {
@@ -100,6 +103,9 @@ ORDER BY CAST(COALESCE(json_extract(data,'$.volume_24h_fp'),0) AS REAL) DESC LIM
 	}
 
 	pairs := make([]mispricedPair, 0)
+	considered := 0
+	untradedSkipped := 0
+	maxDelta := 0.0
 	for _, pm := range pmMarkets {
 		bestIdx := -1
 		bestScore := 0.0
@@ -119,9 +125,14 @@ ORDER BY CAST(COALESCE(json_extract(data,'$.volume_24h_fp'),0) AS REAL) DESC LIM
 		// untraded Kalshi default of 17%). Skip them silently — the screen
 		// is for actionable cross-venue mispricings, not noise.
 		if kalshi.Untraded {
+			untradedSkipped++
 			continue
 		}
+		considered++
 		delta := pm.YesProbability - kalshi.YesProbability
+		if math.Abs(delta) > math.Abs(maxDelta) {
+			maxDelta = delta
+		}
 		if math.Abs(delta) < threshold {
 			continue
 		}
@@ -133,7 +144,7 @@ ORDER BY CAST(COALESCE(json_extract(data,'$.volume_24h_fp'),0) AS REAL) DESC LIM
 	if len(pairs) > limit {
 		pairs = pairs[:limit]
 	}
-	return mispricedResult{Threshold: threshold, Count: len(pairs), Pairs: pairs}, nil
+	return mispricedResult{Threshold: threshold, Count: len(pairs), Considered: considered, UntradedSkipped: untradedSkipped, MaxDelta: maxDelta, Pairs: pairs}, nil
 }
 
 func loadMispricedMarkets(cmd *cobra.Command, db *store.Store, query, resourceType string) ([]rawMarket, error) {

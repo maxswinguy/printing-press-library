@@ -34,8 +34,18 @@ type compareVenue struct {
 }
 
 type compareResult struct {
-	Topic string        `json:"topic"`
-	Pairs []comparePair `json:"pairs"`
+	Topic    string         `json:"topic"`
+	Pairs    []comparePair  `json:"pairs"`
+	Unpaired *compareUnpaired `json:"unpaired,omitempty"`
+	Reason   string         `json:"reason,omitempty"`
+}
+
+// compareUnpaired surfaces the top hits per venue when pairing fails so
+// the agent (or user) can pick an explicit pair via --pair instead of
+// guessing whether the topic doesn't exist or just wasn't paired.
+type compareUnpaired struct {
+	Polymarket []compareVenue `json:"polymarket"`
+	Kalshi     []compareVenue `json:"kalshi"`
 }
 
 type rawMarket struct {
@@ -55,11 +65,13 @@ type rawMarket struct {
 func newCompareCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var dbPath string
+	var pairOverride string
 	cmd := &cobra.Command{
 		Use:   "compare <topic>",
 		Short: "Side-by-side Polymarket and Kalshi prices for a topic",
 		Example: `  prediction-goat-pp-cli compare election --json
-  prediction-goat-pp-cli compare 'arizona basketball' --limit 5`,
+  prediction-goat-pp-cli compare 'arizona basketball' --limit 5
+  prediction-goat-pp-cli compare 'Thunder Spurs' --pair will-the-oklahoma-city-thunder-win-the-2026-nba-finals=KXNBAWEST-26-OKC`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -81,6 +93,9 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 			defer db.Close()
 
 			topic := strings.Join(args, " ")
+			if pairOverride != "" {
+				return runComparePair(cmd, flags, db, topic, pairOverride)
+			}
 			searchLimit := limit * 10
 			if searchLimit < 50 {
 				searchLimit = 50
@@ -90,23 +105,110 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("compare: %w", err)
 			}
 			pairs := pairCompareMarkets(topic, pmMarkets, kalshiMarkets, limit)
-			result := compareResult{Topic: topic, Pairs: pairs}
+			// Drop unpaired-loose entries (no kalshi side) from the pairs
+			// list when both sides exist independently. The unpaired
+			// surface below captures the per-venue tops separately.
+			truePairs := make([]comparePair, 0, len(pairs))
+			for _, p := range pairs {
+				if p.PM != nil && p.Kalshi != nil {
+					truePairs = append(truePairs, p)
+				}
+			}
+			result := compareResult{Topic: topic, Pairs: truePairs}
+			if len(truePairs) == 0 {
+				result.Unpaired = buildUnpaired(pmMarkets, kalshiMarkets, 5)
+				if len(pmMarkets) == 0 && len(kalshiMarkets) == 0 {
+					result.Reason = "no_topic_match"
+				} else {
+					result.Reason = "no_confident_pair"
+				}
+			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				if err := printJSONFiltered(cmd.OutOrStdout(), result, flags); err != nil {
 					return err
 				}
-			} else if err := printCompareTable(cmd.OutOrStdout(), pairs); err != nil {
+			} else if err := printCompareTable(cmd.OutOrStdout(), truePairs); err != nil {
 				return err
 			}
-			if len(pairs) == 0 {
-				return notFoundErr(fmt.Errorf("no Polymarket-Kalshi market pairs found for topic %q (try a broader query, or sync more data first)", topic))
+			if len(truePairs) == 0 {
+				return notFoundErr(fmt.Errorf("no Polymarket-Kalshi market pairs found for topic %q (reason: %s — see unpaired list for per-venue candidates, or pass --pair pm-slug=kalshi-ticker)", topic, result.Reason))
 			}
 			return nil
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max pairs returned")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
+	cmd.Flags().StringVar(&pairOverride, "pair", "", "Explicit pm-slug=kalshi-ticker pair, skipping FTS-based pairing")
 	return cmd
+}
+
+// buildUnpaired packages the top-N per venue as compareVenue rows for
+// inclusion in the no-pair diagnostic surface.
+func buildUnpaired(pm, kalshi []rawMarket, perVenue int) *compareUnpaired {
+	out := &compareUnpaired{Polymarket: make([]compareVenue, 0), Kalshi: make([]compareVenue, 0)}
+	for i, m := range pm {
+		if i >= perVenue {
+			break
+		}
+		out.Polymarket = append(out.Polymarket, compareVenueFromRaw(m))
+	}
+	for i, m := range kalshi {
+		if i >= perVenue {
+			break
+		}
+		out.Kalshi = append(out.Kalshi, compareVenueFromRaw(m))
+	}
+	return out
+}
+
+// runComparePair handles the --pair override path: skip FTS pairing,
+// fetch each side by id, and emit a single pair. Reports
+// explicit_pair_not_found when either side is missing from the store.
+func runComparePair(cmd *cobra.Command, flags *rootFlags, db *store.Store, topic, override string) error {
+	eq := strings.Index(override, "=")
+	if eq <= 0 || eq == len(override)-1 {
+		return usageErr(fmt.Errorf("compare: --pair must be pm-slug=kalshi-ticker (got %q)", override))
+	}
+	pmSlug := strings.TrimSpace(override[:eq])
+	kalshiTicker := strings.TrimSpace(override[eq+1:])
+	pmRow, pmOk := lookupRawMarket(cmd, db, "markets", pmSlug)
+	kalshiRow, kalshiOk := lookupRawMarket(cmd, db, "kalshi_markets", kalshiTicker)
+	if !pmOk || !kalshiOk {
+		result := compareResult{Topic: topic, Reason: "explicit_pair_not_found"}
+		if !pmOk || !kalshiOk {
+			result.Unpaired = &compareUnpaired{Polymarket: []compareVenue{}, Kalshi: []compareVenue{}}
+			if pmOk {
+				result.Unpaired.Polymarket = append(result.Unpaired.Polymarket, compareVenueFromRaw(pmRow))
+			}
+			if kalshiOk {
+				result.Unpaired.Kalshi = append(result.Unpaired.Kalshi, compareVenueFromRaw(kalshiRow))
+			}
+		}
+		if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			_ = printJSONFiltered(cmd.OutOrStdout(), result, flags)
+		}
+		return notFoundErr(fmt.Errorf("compare: --pair %s not found in local store (sync may be needed)", override))
+	}
+	pmVenue := compareVenueFromRaw(pmRow)
+	kalshiVenue := compareVenueFromRaw(kalshiRow)
+	delta := (pmRow.YesProbability - kalshiRow.YesProbability) * 100
+	pair := comparePair{Topic: topic, PM: &pmVenue, Kalshi: &kalshiVenue, Match: 1.0, DeltaPct: &delta}
+	result := compareResult{Topic: topic, Pairs: []comparePair{pair}}
+	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+		return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+	}
+	return printCompareTable(cmd.OutOrStdout(), result.Pairs)
+}
+
+// lookupRawMarket fetches a single market row by resource type and id
+// (slug for Polymarket, ticker for Kalshi). Used by the --pair override.
+func lookupRawMarket(cmd *cobra.Command, db *store.Store, resourceType, id string) (rawMarket, bool) {
+	row := db.DB().QueryRowContext(cmd.Context(), `SELECT data FROM resources WHERE resource_type=? AND id=? LIMIT 1`, resourceType, id)
+	var data sql.NullString
+	if err := row.Scan(&data); err != nil || !data.Valid {
+		return rawMarket{}, false
+	}
+	return rawMarketFromJSON(resourceType, id, data.String)
 }
 
 func loadCompareMarkets(cmd *cobra.Command, db *store.Store, topic string, limit int) ([]rawMarket, []rawMarket, error) {
