@@ -201,6 +201,23 @@
       ],
       "validated_outcome": "go test ./... passes (562 tests, +26 across recipes CRUD/extract/apply/generalization regression and recall+recipe integration). go vet clean. verify_skill.py passes. Fresh DB at v6 includes search_recipes table; v5->v6 upgrade adds the table via CREATE TABLE IF NOT EXISTS (no backfill needed). Flagship regression: teach Portugal+USA (Kalshi+Polymarket each), call recall on 'odds England wins world cup' — returns Found=true with both KXMENWORLDCUP-26-GB (substitute) and the England Polymarket slug (substitute-then-search-prefix) tagged source='recipe'. Direct teaches outrank recipe hits within the same entity_match tier.",
       "upstream_issue": "Pending: lift internal/learn/recipes into the generator template alongside lookups + entities + match + normalize. The recipe engine is the most-domain-agnostic of the four: it operates on the abstract LearningRow shape, resolves entities via the lookups package's Lookup/IsComputedKind contract, and verifies candidates via the generic resources table. Future CLIs that ship a discovery index inherit the generalization layer by plugging in their own seed lookups + entity extractor config."
+    },
+    {
+      "id": "multi-outcome-preseed",
+      "summary": "Pre-populate search_learnings at sync time for multi-outcome event families (Kalshi mutually_exclusive=true, Polymarket negRisk=true) so cold-start queries like 'odds USA wins world cup' hit the fast path on the first invocation without any explicit teach.",
+      "reason": "The biggest cold-start failure pattern in the learning subsystem is multi-outcome events: a World Cup family with 48 teams or an NBA championship family with 30 teams. Each child market carries the entity (yes_sub_title on Kalshi, 'Will the {entity} ...' question shape on Polymarket) the user will ask about. The mapping is mechanically derivable; the LLM should not have to discover it via a search + teach loop. The preseed driver registers per-source scanners against a generic learn.Run entry point; scanners are wired via init() so importing the source package is enough.",
+      "files": [
+        "internal/learn/preseed.go",
+        "internal/learn/preseed_test.go",
+        "internal/source/kalshi/preseed.go",
+        "internal/source/kalshi/preseed_test.go",
+        "internal/source/polymarket/preseed.go",
+        "internal/source/polymarket/preseed_test.go",
+        "internal/cli/kalshi.go",
+        "internal/cli/sync.go"
+      ],
+      "validated_outcome": "go test ./... passes (556 tests, +20 across the preseed driver, Kalshi scanner, Polymarket scanner, and an end-to-end smoke that confirms recall returns KXMENWORLDCUP-26-US for 'odds USA wins world cup' after a preseed run with no teach). go vet clean. verify_skill.py passes. Preseed is gated on three orthogonal switches: --no-preseed flag, PRESEED_DISABLED env var, dogfood/verify env detection. Idempotency: re-running on an unchanged corpus inserts zero rows and never bumps confidence on existing rows (preseed is pure-insert; the bump path is reserved for taught observations). User-taught rows at any confidence are preserved verbatim.",
+      "upstream_issue": "Pending: lift internal/learn/preseed.go into the generator template once the per-source scanner contract proves out across a second multi-outcome API beyond Kalshi/Polymarket. The driver is domain-agnostic; the scanners are CLI-specific."
     }
   ]
 }
