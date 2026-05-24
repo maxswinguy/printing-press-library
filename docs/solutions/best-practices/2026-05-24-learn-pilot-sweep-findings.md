@@ -191,3 +191,56 @@ fix(sweep-learn): close CREATE TABLE statements in canonicalLearnMigrationsBlock
 with a regression test that asserts `Open()`-then-`migrate()` succeeds against a fresh in-memory SQLite database whose `migrations` slice has been built from the canonical block. The expected diff is +5 lines of `)` and one new test function.
 
 Once that lands, retry U14 in this same branch shape (rebase pilot onto fixed tip, re-run sweep, validate 4 CLIs, leave instacart refused, ship per-CLI commits).
+
+## v3 results (after PR #826 fixes for Bug D)
+
+PR #826 commit `c00ebc39` ("fix(cli): close CREATE TABLE statements in learn migrations block") landed the Bug D fix on `feat/sweep-learn-install`. The pilot branch was rebased onto the fixed tip, the sweep tool was rebuilt from source, and the same 5 pilot CLIs were re-run.
+
+**Headline:** Bug D is confirmed fixed. All 4 expected-to-succeed CLIs (espn, contact-goat, company-goat, podcast-goat) now build cleanly, pass tests, install the teach/recall/learnings commands, and return valid JSON from `recall --agent` against a fresh `HOME`. Instacart still refuses with the actionable factory-shape diagnostic. **All 4 successful CLIs are committed to this PR, one commit each per the `feat(cli):` AGENTS.md convention.**
+
+### v3 validation protocol
+
+The v2 run's "recall FAIL" diagnosis turned out to be Bug D plus stale `~/.local/share/<cli>/data.db` files from previous CLI versions colliding with new migrations (e.g. espn's old DBs lacked `season_year` and choked the new `CREATE INDEX`). For v3, every smoke test ran under a fresh ephemeral `HOME` so each CLI bootstrapped its database from scratch:
+
+```bash
+HOME=/tmp/sweep-smoke-$(uuidgen) /tmp/test-cli recall "smoke test" --agent
+```
+
+This is the recommended verification recipe for any future sweep retry — without it, false-positive `recall` failures from stale user state can mask real success.
+
+### Per-CLI v3 outcomes
+
+| CLI | Real sweep | `go build ./...` | `go test ./...` | `--help` shows teach/recall/learnings | `recall "smoke test" --agent` (fresh HOME) | govulncheck reachability | Notes |
+|---|---|---|---|---|---|---|---|
+| espn | wrote 30 learn files + root + store + SKILL + manifest | PASS | PASS (155/155) | PASS | PASS — `{"found": false, "query": "smoke test", "warnings": ["no_learnings_for_query_family"], ...}` | PASS (0 reachable) | Bug D fix confirmed; recall returns valid JSON |
+| contact-goat | wrote 30 learn files + root + store + SKILL + manifest | PASS | PASS (412/412) | PASS | PASS — valid JSON, `found: false` | PASS (0 reachable) | Bug D fix confirmed |
+| company-goat | wrote 30 learn files + root + store + SKILL + manifest | PASS | **PASS (239/239)** | PASS | PASS — valid JSON, `found: false` | PASS (0 reachable) | v2's 4 store-test failures resolved — they were Bug D's malformed migrations bombing fresh DBs in the test suite. With closed CREATE TABLE statements the suite passes end-to-end. |
+| podcast-goat | wrote 30 learn files + root + store + SKILL + manifest | PASS | **PASS (350/350)** | PASS | PASS — valid JSON, `found: false` | PASS (0 reachable) | v2's 10+ store-test failures resolved — same root cause as company-goat. |
+| instacart | refused with `root.go uses the func Root() *cobra.Command factory shape with no rootFlags struct (recognized but unsupported by auto-sweep; manual retrofit required, see tools/sweep-learn-install/README.md)` | n/a | n/a | n/a | n/a | n/a | **Expected** per plan — third root-shape pattern; clean diagnostic per Bug B fix. |
+
+### Net pilot results (vs. v1 and v2)
+
+| Pilot version | Compile pass | Test pass | Runtime smoke pass | Shipped CLIs |
+|---|---|---|---|---|
+| v1 | 0/4 (Bug A/B/C blocked compile) | n/a | n/a | 0 |
+| v2 | 4/4 (compile) | 2/4 (Bug D bombed store tests in 2) | 0/4 (Bug D bombed all migrations) | 0 |
+| **v3** | **4/4** | **4/4** | **4/4** | **4** |
+
+The previously-reported v2 test failures in company-goat and podcast-goat were not pre-existing test flakes — they were Bug D's malformed migrations failing on fresh DBs in those CLIs' store-test fixtures. (espn and contact-goat passed v2 tests only because their store suites didn't open `internal/store` with a fresh DB.) The Bug D fix in PR #826 unblocked both runtime and test paths uniformly.
+
+### Bugs found in v3
+
+None. The sweep tool now produces working swept CLIs for the 2 supported root.go shapes (`var rootCmd` legacy + `func Execute()` with `var flags rootFlags` standard) and cleanly refuses unsupported shapes (`var rootCmd` legacy, `func Root() *cobra.Command` factory).
+
+### Status going into Phase 2
+
+The plan's Phase 2 measurement window (1-2 weeks of dogfood traffic) starts now. With 4 swept CLIs shipping and 165+ remaining library CLIs candidate for future sweeps, the false-positive rate and transferability thresholds become measurable as users interact with these CLIs and emit teach/recall traffic into their local stores.
+
+### Files committed in this PR (v3)
+
+- `library/media-and-entertainment/espn/` — 34 files changed
+- `library/sales-and-crm/contact-goat/` — 34 files changed
+- `library/developer-tools/company-goat/` — 34 files changed
+- `library/media-and-entertainment/podcast-goat/` — 34 files changed
+- `library/commerce/instacart/` — untouched (refused cleanly; manual retrofit deferred to a separate task per plan)
+- This findings doc — appended with v3 results
