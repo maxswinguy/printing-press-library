@@ -330,7 +330,7 @@ Parse `.results` for data and `.meta.source` to know whether it's live or local.
 
 ## Automatic learning
 
-Two-call protocol: `recall` before discovery, `teach &` before emitting. The CLI does entity-aware match validation; you read the envelope and follow the four-branch decision tree.
+Two-call protocol: `recall` before discovery, `teach &` before emitting. The CLI does entity-aware match validation AND surfaces stored playbooks for the query family; you read the envelope and follow the six-branch decision tree. Skipping either side costs you free recall hits in future sessions.
 
 ### Step 1: `recall` before any discovery
 
@@ -355,32 +355,67 @@ The response envelope:
       "source": "taught|preseed|recipe", "warnings": ["..."] }
   ],
   "mismatches": [ /* only when --debug-mismatches */ ],
-  "warnings": [ /* top-level */ ]
+  "warnings": [ /* top-level */ ],
+  "playbook": {
+    "query_family": "...",
+    "playbook": {
+      "steps": [ { "cmd": "kalshi events get $EVENT --with-markets", "purpose": "..." }, ... ],
+      "entity_slots": ["$TEAM", "$EVENT", "$SERIES"],
+      "expected_tool_calls": 2
+    },
+    "slots_resolved": { "$TEAM": { "token": "portugal", "canonical": "Portugal" } },
+    "notes": "kalshi events list pages by created_at desc; --series forces --data-source live"
+  },
+  "notes": "kalshi events list pages by created_at desc; --series forces --data-source live"
 }
 ```
 
-### Step 2: four-branch decision tree
+### Step 2: six-branch decision tree
 
-Read `results[0]` and decide:
+Read `playbook`, `notes`, `results[0]`, and warnings in that order:
 
 ```
-if Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+if Playbook present:
+    -> READ Playbook.notes verbatim FIRST (workarounds + gotchas the CLI surface doesn't expose)
+    -> replay Playbook.steps in order, substituting Playbook.slots_resolved entries
+       for the entity slot tokens. If a step's slot is unresolved, fall back to
+       discovery for that step only.
+    -> Playbook.expected_tool_calls is a budget; if you find yourself running
+       materially more, record the divergence via teach-playbook at end-of-session.
+
+elif Notes present (no Playbook):
+    -> read Notes verbatim before any discovery step; they carry known gotchas
+       for this query family even when no structured choreography exists yet.
+
+elif Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
     -> skip discovery; fetch live prices for Results[*].ResourceID in parallel
+       (kalshi markets get <ticker>, markets get-by-slug <pm-slug>, etc.)
+
 elif Found AND Results[0].EntityMatch == "partial":
     -> candidate hint, NOT a hit; read the resource title to validate before trusting
+
 elif (any row in Mismatches[] when --debug-mismatches was passed):
     -> treat as cold start; the stored learning is for a different entity
-else:  // Found == false
-    -> cold start; run discovery normally; teach the answer afterward
+       (e.g., a "Portugal" learning won't satisfy an "England" query — different canonical)
+
+else:  // Found == false, no playbook, no notes
+    -> cold start; run discovery normally; teach the answer afterward AND record
+       a playbook + notes via teach-playbook so the next session of the same
+       family is faster.
 ```
 
-Default to skipping `mismatches` (mismatch rows are filtered out of `results`). Pass `--debug-mismatches` only when investigating *why* a query you expected to recall came back cold.
+Playbook and Notes are orthogonal to the per-resource path. A recall response can carry both a Playbook AND a Results[] hit -- use both: the Playbook tells you which choreography to run; the resource hits short-circuit specific steps. Default to skipping `mismatches`; pass `--debug-mismatches` only when investigating cold-start surprises.
+
+The three playbooks prediction-goat ships out of the box cover the highest-volume query shapes: `odds_for_team` (single-team odds inside a multi-outcome event), `event_markets` (every child market under a specific Kalshi event or Polymarket parent event), and `series_summary` (Kalshi series header + active events + top markets). Each ships with notes capturing the dogfood-discovered gotchas for that shape (untraded-flag filtering, --series forces live data-source, parent-vs-child ticker disambiguation).
 
 ### Step 3: always read `warnings`
 
 - `parent_event_when_child_exists`: do NOT fetch the parent. The warning carries the suggested child ticker; fetch that instead even when the parent ticker is in `Results`.
 - `low_confidence`: row exists at `confidence<2`. Treat as a hint, not a skip-discovery hit.
 - `resource_not_in_store`: the local store doesn't have the resource the learning points at. The match validator couldn't classify entities — direct-fetch and re-evaluate.
+- `cross_alias_match` (per-result): the row was taught under a different alias and matched the live query's canonical via `entity_lookups` (e.g., a "USA" teach satisfying a "United States" recall). Trust the resource_id.
+- `similar_shape_different_entity` (top-level): a structurally matching row exists but its canonical entity differs from the live query's (e.g., a Portugal learning when the user asked about England). Treated as cold start; replaces the misleading `no_learnings_for_query_family` warning when this case applies.
+- `ambiguous_alias` (top-level): a single query entity resolved to multiple canonicals (e.g., "Cards" → Arizona Cardinals + St. Louis Cardinals). Surface the ambiguity to the user before committing to a ticker.
 - Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
 
 ### Step 4: `teach &` after finalizing your response
@@ -391,7 +426,49 @@ After assembling your user-facing response containing tickers/slugs but BEFORE e
 prediction-goat-pp-cli teach --query "<user's question>" --resource <id1> --resource <id2>
 ```
 
-Silent on success. Teach the **most specific** resource — if you fetched a parent event during discovery but the answer lives in a specific child ticker, teach the child. The CLI writes a `parent_event_when_child_exists` warning to `teach.log` when you don't, surfaced by `learnings list --warnings`. The user never sees it.
+Silent on success. Teach the **most specific** resource — if you fetched a parent event during discovery but the answer lives in a specific child ticker, teach the child. The CLI writes a `parent_event_when_child_exists` warning to `teach.log` when you don't, surfaced by `learnings list --warnings`. The user never sees it. The CLI uses seeded `entity_lookups` (ISO 3166 country codes plus NFL/NBA/MLB/MLS team rosters with aliases) for cross-alias resolution at recall time, so a teach under "Niners" satisfies future "49ers" queries automatically.
+
+### Step 5: record a playbook when discovery took >5 calls
+
+If you ran more than 5 tool calls to answer the question AND you discovered workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas, untraded-flag noise), record them so the next session of the same query family skips that discovery:
+
+```bash
+prediction-goat-pp-cli teach-playbook \
+  --query "<user's question>" \
+  --playbook-file ~/playbooks/series-summary.json \
+  --notes-file ~/playbooks/series-summary-notes.md
+# (append shell `&` to background it)
+```
+
+Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. At least one of `--playbook-file` and `--notes`/`--notes-file` must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from "odds Portugal wins world cup" applies to England, Brazil, and every other country query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
+
+The three families prediction-goat already ships with playbooks (`odds_for_team`, `event_markets`, `series_summary`) cover the common shapes; if your query family already has a playbook, prefer `playbook amend` (Step 6) over a full re-teach.
+
+When you DO find a playbook on a future recall, treat it as ground truth: replay the steps with `slots_resolved` substitutions, skip the discovery that the choreography already documents, and read `notes` before any step.
+
+### Step 6: `playbook amend &` when your debug response identifies a correction
+
+If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
+
+```bash
+prediction-goat-pp-cli playbook amend \
+  --query "<exact recall query string>" \
+  --add-note "<your concrete correction>"
+# (append shell `&` to background it)
+```
+
+What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
+- "kalshi events list --series forces --data-source live; local store doesn't index series_ticker"
+- "polymarket /public-search goes stale for celebrity hub topics; fall back to polymarket siblings via the parent event"
+- "untraded Kalshi markets show 17c platform-default ask with zero volume; filter via `untraded: true` before pairing"
+- "compare returns structured unpaired diagnostic when only one venue has a market for the topic; don't read it as 'no data'"
+
+What does NOT belong in notes:
+- The year-specific answer ("Portugal is at 8% to win"). That's the response, not a learning.
+- Per-country or per-team data the playbook already retrieves at runtime.
+- Statements that paraphrase what the existing notes already say.
+
+The amend command appends to the family's existing notes with a timestamped marker (`[amend YYYY-MM-DDTHH:MMZ]: <text>`). Multiple amends accumulate; the audit trail is visible. If no playbook exists yet for the family, amend creates a notes-only one (so cold-start corrections still land). Use `playbook list --agent` to inspect what's stored.
 
 ### Worked examples
 

@@ -3,6 +3,9 @@
   "applied_at": "2026-05-26",
   "base_run_id": "20260522-175728",
   "base_printing_press_version": "4.10.0",
+  "upstream_tracking": [
+    "ESPN PR #851 HEAD 9bb0a40a (mvanhorn/printing-press-library): source-of-truth for the learn-loop backport patches (U1-U11) under docs/plans/2026-05-25-001-feat-prediction-goat-learn-loop-backport-plan.md. Each `learn-loop-backport-uN-*` patch entry mirrors the corresponding ESPN file under library/media-and-entertainment/espn/ at that HEAD."
+  ],
   "patches": [
     {
       "id": "dogfood-fixes-2026-05-22",
@@ -386,6 +389,16 @@
         "internal/cli/playbooks_authored_test.go"
       ],
       "validated_outcome": "go test ./... passes 699/699. Fresh $HOME smoke test: playbook list --agent returns 4 rows (3 playbooks; event_markets seeds under 2 family keys). Recall for each example query surfaces playbook + notes + (where the slot binds) resolved entity."
+    },
+    {
+      "id": "learn-loop-backport-u11-skill-decision-tree-extension",
+      "summary": "Extend SKILL.md \"Automatic learning\" section from a four-branch to a six-branch decision tree that surfaces the playbook + notes envelope fields landed in U7. Document the new recall envelope shape (playbook, slots_resolved, notes), the Step 5 `teach-playbook` self-record protocol (used when discovery took >5 calls), the Step 6 `playbook amend` self-correction protocol (used when debug-protocol identifies a concrete correction worth persisting), and the three new top-level warnings (cross_alias_match, similar_shape_different_entity, ambiguous_alias). Reference the three playbooks shipped in U10 by family name (odds_for_team, event_markets, series_summary).",
+      "reason": "U11 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). U7 wired the recall envelope to carry playbook + notes; U8 shipped the teach-playbook + playbook amend commands; U10 shipped the three hand-authored playbooks. Without the SKILL.md extension agents have no way to learn the new envelope shape, the playbook decision branch, or the `playbook amend &` self-correction protocol. Voice + structure adapted from ESPN's SKILL.md decision-tree section (library/media-and-entertainment/espn/SKILL.md) but the examples, the gotchas-list, and the family-name references are prediction-goat-specific. The existing Step 1 / Step 3 / Step 4 / Step 4-sub-sections (teach-recipe, teach-lookup, --no-learn, learnings list) are preserved verbatim so the recipes generalization layer and the new playbooks primitive coexist without semantic confusion (Decision 1 in the plan).",
+      "files": [
+        "SKILL.md",
+        ".printing-press-patches.json"
+      ],
+      "validated_outcome": "python3 .github/scripts/verify-skill/verify_skill.py --dir library/payments/prediction-goat/ passes clean (flag-names, flag-commands, positional-args, unknown-command). The new --playbook-file, --notes-file, --add-note, --debug-mismatches flag references all resolve to declarations in internal/cli/teach_playbook.go and existing teach.go. go build / go vet / go test ./... still green at 699/699 (U11 is documentation, no behavior changes)."
     }
   ]
 }
