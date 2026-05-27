@@ -1205,11 +1205,11 @@
     {
       "name": "clarity",
       "category": "marketing",
-      "api": "PP Clarity",
+      "api": "Microsoft Clarity",
       "description": "Client-side instrumentation helpers for Microsoft Clarity.",
       "search_terms": [
         "clarity",
-        "PP Clarity",
+        "Microsoft Clarity",
         "clarity-pp-cli",
         "Generate Microsoft Clarity client API snippets and inspect the Clarity tag script.",
         "Snippet renderer",
@@ -6271,16 +6271,17 @@
       "printer": "gregvanhorn",
       "printer_name": "Greg Van Horn",
       "mcp": {
-        "binary": "roam-pp-cli",
+        "binary": "roam-pp-mcp",
         "transports": [
           "stdio"
         ],
-        "tool_count": 0,
-        "public_tool_count": 0,
+        "tool_count": 85,
+        "public_tool_count": 85,
         "auth_type": "bearer",
         "env_vars": [
           "ROAM_API_KEY"
         ],
+        "mcp_ready": "full",
         "spec_format": "openapi3"
       }
     },
