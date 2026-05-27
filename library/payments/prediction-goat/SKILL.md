@@ -430,17 +430,25 @@ Silent on success. Teach the **most specific** resource — if you fetched a par
 
 ### Step 5: record a playbook when discovery took >5 calls
 
-If you ran more than 5 tool calls to answer the question AND you discovered workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas, untraded-flag noise), record them so the next session of the same query family skips that discovery:
+If you ran more than 5 tool calls to answer the question AND you discovered workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas, untraded-flag noise), record them so the next session of the same query family skips that discovery. Prefer the **integrated one-call form** — record the resource learning and the playbook in the same `teach` invocation:
 
 ```bash
+# Common case: record both the resource learning AND the playbook in one call.
+prediction-goat-pp-cli teach \
+  --query "<user's question>" \
+  --resource <id1> \
+  --playbook-file ~/playbooks/series-summary.json \
+  --playbook-notes-file ~/playbooks/series-summary-notes.md
+# (append shell `&` to background it)
+
+# Alternate: playbook-only (no resource ticker to record alongside).
 prediction-goat-pp-cli teach-playbook \
   --query "<user's question>" \
   --playbook-file ~/playbooks/series-summary.json \
   --notes-file ~/playbooks/series-summary-notes.md
-# (append shell `&` to background it)
 ```
 
-Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. At least one of `--playbook-file` and `--notes`/`--notes-file` must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from "odds Portugal wins world cup" applies to England, Brazil, and every other country query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
+Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. On the integrated `teach` form, the playbook flags are optional — at least one of them must be set to upsert a playbook, but you can also omit them entirely for a resource-only teach. On the standalone `teach-playbook` form, at least one of `--playbook-file` and `--notes`/`--notes-file` must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from "odds Portugal wins world cup" applies to England, Brazil, and every other country query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
 
 The three families prediction-goat already ships with playbooks (`odds_for_team`, `event_markets`, `series_summary`) cover the common shapes; if your query family already has a playbook, prefer `playbook amend` (Step 6) over a full re-teach.
 

@@ -426,6 +426,15 @@
       "files": [
         "internal/cli/trending.go"
       ]
+    },
+    {
+      "id": "learn-loop-backport-u13-integrated-teach-playbook-flags",
+      "summary": "Port ESPN integrated teach --playbook-file / --playbook-notes-file flags onto regular teach command so SKILL.md Step 5 works in one call.",
+      "reason": "U8 only added the standalone teach-playbook command. ESPN ships the integrated path: teach --query --resource --playbook-file --playbook-notes-file records both the resource learning AND the structured playbook in one CLI call. SKILL.md Step 5 invokes that integrated form. Missing this in prediction-goat forced agents into two calls (teach + teach-playbook) and broke parity with the ESPN self-teaching loop. Helper upsertPlaybookFromTeach reuses resolvePlaybookInputs (already in teach_playbook.go).",
+      "files": [
+        "internal/cli/teach.go",
+        "SKILL.md"
+      ]
     }
   ]
 }

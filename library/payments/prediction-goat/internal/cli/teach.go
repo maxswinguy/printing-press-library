@@ -138,6 +138,18 @@ func newTeachCmd(flags *rootFlags) *cobra.Command {
 	// the resource shape and doesn't want a structured warning written
 	// to teach.log. The teach itself is unaffected by this flag.
 	var noValidate bool
+	// Playbook side -- optional. When any of these is set, after the
+	// resource learning lands, also upsert a learning_playbooks row
+	// keyed on the query family. Failures here log to teach.log but
+	// don't fail the resource learning (graceful degrade). PATCH
+	// (learn-loop-backport-u13-integrated-playbook): mirrors ESPN's
+	// teach --playbook-file path so SKILL.md Step 5 records both the
+	// resource learning and the structured playbook in ONE call
+	// instead of two (teach + teach-playbook). Greptile P-equivalent
+	// gap from the U1-U12 backport.
+	var playbookFile string
+	var playbookNotesInline string
+	var playbookNotesFile string
 
 	cmd := &cobra.Command{
 		Use:   "teach",
@@ -255,6 +267,19 @@ Disabling: pass --no-learn or set PREDICTION_GOAT_NO_LEARN=true.`,
 				writeTeachLog(fmt.Sprintf("teach: audit append: %v", err))
 			}
 
+			// Optional integrated playbook upsert. Any of three flags may
+			// be set; all three empty means skip. Failures log to
+			// teach.log but don't fail the resource learning above --
+			// the agent's primary write (resource learning) already
+			// succeeded, so degraded playbook recording is acceptable.
+			// Mirrors ESPN's upsertPlaybookFromTeach call site so
+			// SKILL.md Step 5's one-call protocol works.
+			if strings.TrimSpace(playbookFile) != "" || strings.TrimSpace(playbookNotesInline) != "" || strings.TrimSpace(playbookNotesFile) != "" {
+				if pbErr := upsertPlaybookFromTeach(db, cmd.Context(), query, playbookFile, playbookNotesInline, playbookNotesFile, normalized); pbErr != nil {
+					writeTeachLog(fmt.Sprintf("teach: playbook upsert: %v", pbErr))
+				}
+			}
+
 			// U10: post-teach generalization. Recipe extraction looks
 			// at the most-recent N teaches, groups them by structural
 			// signature, and writes a search_recipes row when a kind
@@ -296,7 +321,37 @@ Disabling: pass --no-learn or set PREDICTION_GOAT_NO_LEARN=true.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
 	cmd.Flags().StringVar(&notes, "notes", "", "Optional free-form note recorded with the learning")
 	cmd.Flags().BoolVar(&noValidate, "no-validate", false, "Suppress the U6 teach-time resource-shape validator (warnings to teach.log)")
+	cmd.Flags().StringVar(&playbookFile, "playbook-file", "", "Optional path to a JSON playbook recording the CLI choreography for this query family")
+	cmd.Flags().StringVar(&playbookNotesInline, "playbook-notes", "", "Optional inline gotchas/workarounds for this query family (stored alongside the playbook)")
+	cmd.Flags().StringVar(&playbookNotesFile, "playbook-notes-file", "", "Optional path to a markdown file with playbook notes")
 	return cmd
+}
+
+// upsertPlaybookFromTeach loads playbook + notes inputs and writes a
+// learning_playbooks row keyed on the normalized query family. Helper
+// for the teach command's optional integrated playbook write. Mirrors
+// ESPN's upsertPlaybookFromTeach so SKILL.md Step 5's one-call form
+// works in prediction-goat. resolvePlaybookInputs lives in
+// teach_playbook.go (same package).
+func upsertPlaybookFromTeach(s *store.Store, ctx context.Context, query, playbookFile, notesInline, notesFile string, normalized learn.NormalizedQuery) error {
+	_ = ctx
+	playbookJSON, notes, err := resolvePlaybookInputs(playbookFile, notesInline, notesFile)
+	if err != nil {
+		return err
+	}
+	if playbookJSON == "" && notes == "" {
+		return nil
+	}
+	family := learn.QueryFamily(normalized)
+	if family == "" {
+		return fmt.Errorf("query normalized to empty family")
+	}
+	_, _, err = s.UpsertPlaybook(store.UpsertPlaybookInput{
+		QueryFamily:  family,
+		PlaybookJSON: playbookJSON,
+		NotesText:    notes,
+	})
+	return err
 }
 
 // recallEnvelope is the JSON shape returned by `recall --agent`. The
