@@ -401,6 +401,69 @@
       }
     },
     {
+      "name": "amazon-ads",
+      "category": "commerce",
+      "api": "Amazon Ads",
+      "description": "Amazon Ads CLI for reports, analytics, keyword optimization, and guarded automation",
+      "search_terms": [
+        "amazon-ads",
+        "Amazon Ads",
+        "amazon-ads-pp-cli",
+        "Amazon Ads CLI for OAuth profile setup, reports, profitability analytics, keyword optimization, and guarded campaign automation.",
+        "Profitability analytics",
+        "acos-vs-tacos, true-profit, break-even-acos",
+        "Estimate ad profitability from Amazon Ads reports, COGS, fees, and optional amazon-seller store revenue.",
+        "Search term optimization",
+        "search-term-mining, wasted-spend, negative-keyword-generator, new-keyword-opportunities",
+        "Turn Search Term Reports into promotion, negation, and waste-reduction recommendations.",
+        "Performance planning",
+        "portfolio-dashboard, campaign-comparison, product-ad-profitability, placement-analysis, seasonal-planner",
+        "Summarize spend, sales, ACOS, placement performance, product profit, and seasonal budget signals.",
+        "Hourly and pacing analysis",
+        "dayparting-analysis, budget-pacing",
+        "Analyze reports with hour/hourOfDay or timestamped rows for conversion windows and early budget exhaustion.",
+        "Keyword lifecycle and bid intelligence",
+        "keyword-decay, keyword-lifecycle, bid-history, keyword-snapshots, bid-optimizer",
+        "Track keyword trend history locally and recommend bid changes against target ACOS.",
+        "Competitive intelligence",
+        "share-of-voice, competitor-asin-mining",
+        "Mine share-of-voice and product-targeting reports for competitor ASIN and keyword visibility signals.",
+        "Report normalization",
+        "reports wait, normalize-report",
+        "Poll Amazon Ads async report status, read gzip reports, normalize CSV/JSON, and optionally import to the local SQLite store.",
+        "Guarded automation",
+        "auto-negate, auto-promote, budget-rebalance, bid-rules apply, automation-audit",
+        "Plan and optionally apply negative keywords, exact promotions, budget changes, and bid rules with dry-run defaults, guardrails, and audit logs.",
+        "Profile-aware OAuth setup",
+        "auth login, profiles list, profiles select, profiles current",
+        "Run Login with Amazon OAuth, persist refresh-token credentials locally, and select the Amazon Ads profile scope used on API calls."
+      ],
+      "path": "library/commerce/amazon-ads",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "creator": {
+        "handle": "cathrynlavery",
+        "name": "Cathryn Lavery"
+      },
+      "mcp": {
+        "binary": "amazon-ads-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 53,
+        "public_tool_count": 53,
+        "auth_type": "oauth2_refresh",
+        "env_vars": [
+          "AMAZON_ADS_CLIENT_ID",
+          "AMAZON_ADS_CLIENT_SECRET",
+          "AMAZON_ADS_REFRESH_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "amazon-orders",
       "category": "commerce",
       "api": "Amazon Orders",
