@@ -5986,6 +5986,57 @@
       }
     },
     {
+      "name": "ollama-cloud",
+      "category": "ai",
+      "api": "Ollama Cloud",
+      "description": "Routes every prompt to the right hosted Ollama model. Wraps chat, embeddings, catalog, and the OpenAI-compatible...",
+      "search_terms": [
+        "ollama-cloud",
+        "Ollama Cloud",
+        "ollama-cloud-pp-cli",
+        "Ollama Cloud is Ollama's hosted inference API.",
+        "Model advisor",
+        "advise",
+        "Picks the right Ollama Cloud model for a prompt by combining live catalog, heuristic prompt-feature extraction, curated cost/latency metadata, and an optional cheap meta-LLM tiebreak.",
+        "Side-by-side comparison",
+        "compare",
+        "Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, and latency.",
+        "Advisor explain",
+        "With --explain, advise emits the full scoring trace: feature extraction, per-model scores, filter passes, tiebreak rationale.",
+        "Advisor replay",
+        "advise-replay",
+        "Replays advisor recommendations and reports divergence between recommended models and actually-chosen models. Foundation for the divergence canary; the prompt corpus is not retained so judge-LLM scoring is not in scope until a corpus sidecar ships.",
+        "Budget probe",
+        "budget",
+        "Probes the free-tier weekly cap with a 1-token chat. Parses Ollama Cloud's 429 prose and emits a structured verdict (ok | exhausted | unknown) with the upgrade URL so agents can pre-flight quota before launching long sessions.",
+        "Cost trace",
+        "cost-trace",
+        "Aggregates advisor-log cost estimates over a time window; compares per-model and per-task-hint spend."
+      ],
+      "path": "library/ai/ollama-cloud",
+      "printer": "rvdlaar",
+      "printer_name": "Rick van de Laar",
+      "creator": {
+        "handle": "rvdlaar",
+        "name": "Rick van de Laar"
+      },
+      "mcp": {
+        "binary": "ollama-cloud-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 8,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "OLLAMA_CLOUD_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "open-meteo",
       "category": "other",
       "api": "Open-Meteo",
