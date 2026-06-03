@@ -4411,6 +4411,52 @@
       }
     },
     {
+      "name": "gorgias",
+      "category": "sales-and-crm",
+      "api": "Gorgias",
+      "description": "Gorgias support CLI with offline sync, local search, read-only SQL, and MCP tools for agent-native support workflows.",
+      "search_terms": [
+        "gorgias",
+        "gorgias-pp-cli",
+        "Gorgias support CLI with offline sync, local search, read-only SQL, and MCP tools for agent-native support workflows.",
+        "Code-orchestration MCP surface",
+        "gorgias-pp-mcp --transport http --addr :7777",
+        "108 Gorgias endpoints reachable through a small fixed set of MCP tools — 15 typed tools total, ~9K context tokens for a full tools/list response (~1K of descriptions, ~7K of JSON schemas). Agents reach the full surface through gorgias_search + gorgias_execute, not a 108-tool catalog. Live tool count is reported by the `context` tool.",
+        "Doctor with live credential verification",
+        "gorgias-pp-cli doctor --json",
+        "Probes /account with the configured credentials and reports credentials: valid only when an authenticated call succeeds. Surfaces auth failures as the first command an agent runs, before any read or write.",
+        "Auto-refresh of stale local mirror",
+        "GORGIAS_AUTO_REFRESH_TTL=15m gorgias-pp-cli tickets list",
+        "Opt-in: read commands automatically sync the resource before serving if the local SQLite mirror is older than the TTL. Off by default to keep behavior predictable for agents preferring explicit syncs.",
+        "Local FTS5 search across synced data",
+        "gorgias-pp-cli sync --resources tickets --since 7d && gorgias-pp-cli search refund --agent",
+        "Sync to local SQLite, then full-text search with subsecond latency. Turns a 30-second multi-page paginated search into a 50ms SQL-backed query. Pairs with cron for warm local data.",
+        "Agent-readable endpoint surface",
+        "gorgias-pp-cli agent-context --json",
+        "agent-context exposes the command catalog, global flags, env requirements, MCP surface, and endpoint counts so an agent can inspect supported capabilities without parsing help text or making tenant-specific live calls."
+      ],
+      "path": "library/sales-and-crm/gorgias",
+      "printer": "chrisyoungcooks",
+      "printer_name": "Chris Young",
+      "mcp": {
+        "binary": "gorgias-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 15,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "GORGIAS_USERNAME",
+          "GORGIAS_API_KEY",
+          "GORGIAS_BASE_URL"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "granola",
       "category": "productivity",
       "api": "Granola",
@@ -7323,6 +7369,45 @@
       "creator": {
         "handle": "markvandeven",
         "name": "markvandeven"
+      }
+    },
+    {
+      "name": "plane",
+      "category": "project-management",
+      "api": "Plane",
+      "description": "The Plane REST API Visit our quick start guide and full API documentation at [developers.plane.so](https://developers.",
+      "search_terms": [
+        "plane",
+        "plane-pp-cli",
+        "Open-source project management вЂ” issues, cycles, modules, sub-issues, and workspaces. A self-hostable Jira/Linear/ClickUp alternative.",
+        "Issue Relations",
+        "relations",
+        "Flat list/set/unset of issue blocking, blocked_by, duplicate, relates_to and temporal links without hand-driving the relations endpoint (unset bridges Plane CE's missing DELETE via a configurable Django-shell call).",
+        "Module Membership & Sync Enrichment",
+        "module",
+        "Manage an issue's module membership (of/create-issue/sync) and auto-enrich issue module_ids during sync (on by default), since Plane's issue API never returns module membership."
+      ],
+      "path": "library/project-management/plane",
+      "printer": "sidorovanthon",
+      "printer_name": "Anton Sidorov aka anticodeguy",
+      "creator": {
+        "handle": "sidorovanthon",
+        "name": "Anton Sidorov aka anticodeguy"
+      },
+      "mcp": {
+        "binary": "plane-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 125,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "PLANE_API_KEY_AUTHENTICATION"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
