@@ -127,30 +127,52 @@ func cookieAuthLane() map[string]any {
 	return lane
 }
 
+const xAppOnlyProbePath = "/2/users/2244994945"
+
 func buildAuthLaneReport(ctx context.Context, cfg *config.Config, c *client.Client) map[string]any {
 	userSource := cfg.UserContextAuthSource()
 	if userSource == "" {
 		userSource = "X_OAUTH2_USER_TOKEN/access_token"
 	}
-	return map[string]any{
-		"app_only_api": probeAuthLane(
-			ctx,
-			c,
-			cfg.AppOnlyAuthHeader(),
-			"X_BEARER_TOKEN",
-			"/2/users/by/username/TwitterDev",
-			"set X_BEARER_TOKEN for app-only public API reads",
-		),
-		"oauth2_user_context": probeAuthLane(
-			ctx,
-			c,
-			cfg.UserContextAuthHeader(),
-			userSource,
-			"/2/users/me",
-			"set X_OAUTH2_USER_TOKEN to a real OAuth2 user-context token for /2/users/me, personal reads, writes, bookmarks, and user-context analytics",
-		),
-		"x_articles_cookie": cookieAuthLane(),
+
+	type laneResult struct {
+		key  string
+		lane map[string]any
 	}
+	results := make(chan laneResult, 2)
+	go func() {
+		results <- laneResult{
+			key: "app_only_api",
+			lane: probeAuthLane(
+				ctx,
+				c,
+				cfg.AppOnlyAuthHeader(),
+				"X_BEARER_TOKEN",
+				xAppOnlyProbePath,
+				"set X_BEARER_TOKEN for app-only public API reads",
+			),
+		}
+	}()
+	go func() {
+		results <- laneResult{
+			key: "oauth2_user_context",
+			lane: probeAuthLane(
+				ctx,
+				c,
+				cfg.UserContextAuthHeader(),
+				userSource,
+				"/2/users/me",
+				"set X_OAUTH2_USER_TOKEN to a real OAuth2 user-context token for /2/users/me, personal reads, writes, bookmarks, and user-context analytics",
+			),
+		}
+	}()
+
+	lanes := map[string]any{"x_articles_cookie": cookieAuthLane()}
+	for range 2 {
+		result := <-results
+		lanes[result.key] = result.lane
+	}
+	return lanes
 }
 
 func laneStatus(lanes map[string]any, key string) string {

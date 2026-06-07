@@ -164,7 +164,7 @@ func (c *Config) UserContextAuthSource() string {
 		if c.AuthSource != "" {
 			return c.AuthSource
 		}
-		return "config:oauth2_user_token"
+		return "config"
 	case c.AccessToken != "":
 		return "config:access_token"
 	case c.AuthHeaderVal != "":

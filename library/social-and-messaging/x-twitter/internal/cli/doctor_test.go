@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,9 +13,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 )
 
 const xUnsupportedAppOnlyBody = `Unsupported Authentication
@@ -81,7 +85,7 @@ func testXAuthProbeServer() *httptest.Server {
 			default:
 				http.Error(w, "invalid token", http.StatusUnauthorized)
 			}
-		case "/2/users/by/username/TwitterDev":
+		case xAppOnlyProbePath:
 			if auth == "Bearer app" {
 				w.Header().Set("Content-Type", "application/json")
 				_, _ = w.Write([]byte(`{"data":{"id":"2244994945","username":"TwitterDev"}}`))
@@ -144,6 +148,55 @@ func TestDoctorClassifiesAppOnlyTokenInUserContextLane(t *testing.T) {
 	appLane := laneFromReport(t, report, "app_only_api")
 	if got, _ := appLane["status"].(string); got != "missing" {
 		t.Fatalf("app_only_api status = %q, want missing (lane=%#v)", got, appLane)
+	}
+}
+
+func TestBuildAuthLaneReportProbesAPILanesConcurrently(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+
+	var mu sync.Mutex
+	seen := 0
+	bothRequestsArrived := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case xAppOnlyProbePath, "/2/users/me":
+			mu.Lock()
+			seen++
+			if seen == 2 {
+				close(bothRequestsArrived)
+			}
+			mu.Unlock()
+
+			select {
+			case <-bothRequestsArrived:
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(`{"data":{"id":"123"}}`))
+			case <-r.Context().Done():
+			case <-time.After(750 * time.Millisecond):
+				http.Error(w, "auth probes did not overlap", http.StatusInternalServerError)
+			}
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	cfg := &config.Config{
+		BaseURL:          server.URL,
+		AuthSource:       "config",
+		XBearerToken:     "app",
+		XOauth2UserToken: "user",
+	}
+	c := client.New(cfg, 2*time.Second, 0)
+	c.NoCache = true
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	lanes := buildAuthLaneReport(ctx, cfg, c)
+	for _, key := range []string{"app_only_api", "oauth2_user_context"} {
+		if got := laneStatus(lanes, key); got != "ok" {
+			t.Fatalf("%s status = %q, want ok (lanes=%#v)", key, got, lanes)
+		}
 	}
 }
 
