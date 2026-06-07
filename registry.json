@@ -10924,6 +10924,57 @@
       }
     },
     {
+      "name": "tripadvisor",
+      "category": "travel",
+      "api": "Tripadvisor",
+      "description": "Every Tripadvisor Content API endpoint",
+      "search_terms": [
+        "tripadvisor",
+        "tripadvisor-pp-cli",
+        "Every Tripadvisor Content API endpoint, plus a local store and ranked compare/best/drift commands no other Tripadvisor tool has.",
+        "Ranked best-of search",
+        "best",
+        "Search a place type, auto-fetch details for the top hits, and return them ranked by rating, review count, or Tripadvisor ranking in one table.",
+        "Side-by-side compare",
+        "compare",
+        "Pull details (and subratings + trip-type mix) for 2-5 location IDs and emit one structured comparison table.",
+        "Geo-ranked shortlist",
+        "nearby-best",
+        "From a lat/long, find nearby places, batch-fetch details up to a scan cap, filter by category and minimum rating, return the top K.",
+        "Rating drift",
+        "drift",
+        "Compare a location's stored rating/review-count snapshot against a fresh fetch and report the delta, flagging drops past a threshold.",
+        "Location digest",
+        "digest",
+        "One location ID to a single agent-friendly payload combining details, top reviews (user-generated), and photo URLs.",
+        "Traveler fit ranking",
+        "fit",
+        "Rank search results by how well their trip-type mix matches a declared traveler profile (families, couples, solo, business)."
+      ],
+      "path": "library/travel/tripadvisor",
+      "printer": "dbryson",
+      "printer_name": "David Bryson",
+      "creator": {
+        "handle": "dbryson",
+        "name": "David Bryson"
+      },
+      "mcp": {
+        "binary": "tripadvisor-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "TRIPADVISOR_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "trustpilot",
       "category": "marketing",
       "api": "Trustpilot",
