@@ -521,6 +521,24 @@ func (s *Store) migrate(ctx context.Context) error {
 			last_synced_at DATETIME,
 			total_count INTEGER DEFAULT 0
 		)`,
+		`CREATE TABLE IF NOT EXISTS post_collections (
+			name TEXT PRIMARY KEY,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE TABLE IF NOT EXISTS post_collection_items (
+			collection_name TEXT NOT NULL,
+			tweet_id TEXT NOT NULL,
+			tweet_json JSON NOT NULL,
+			note TEXT,
+			tags_json JSON,
+			source_url TEXT,
+			saved_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (collection_name, tweet_id),
+			FOREIGN KEY (collection_name) REFERENCES post_collections(name) ON DELETE CASCADE
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_post_collection_items_collection_saved ON post_collection_items(collection_name, saved_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_post_collection_items_tweet ON post_collection_items(tweet_id)`,
 		resourcesFTSCreateSQL,
 		`CREATE TABLE IF NOT EXISTS "account_activity" (
 			"id" TEXT PRIMARY KEY,

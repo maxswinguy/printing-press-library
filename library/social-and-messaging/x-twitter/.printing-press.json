@@ -52,6 +52,21 @@
   "auth_key_url": "https://console.x.com/",
   "novel_features": [
     {
+      "name": "Post URL resolver",
+      "command": "post resolve",
+      "description": "Normalize any X post URL or raw post ID into a canonical structured post record with provenance, author context, metrics, local-state reuse, and suggested next workflow commands."
+    },
+    {
+      "name": "Conversation context resolver",
+      "command": "thread context",
+      "description": "Resolve a post URL or ID, include parent and quote context when available, and optionally pull bounded replies from local store or recent search."
+    },
+    {
+      "name": "Durable post collections",
+      "command": "collection save/list/export",
+      "description": "Save resolved X posts into local named collections, list saved source material, and export it as markdown, JSON, JSONL, or CSV."
+    },
+    {
       "name": "Offline thread reconstruction",
       "command": "thread show",
       "description": "Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits."
