@@ -149,6 +149,9 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Long: `X Twitter CLI — The only X CLI with an offline, searchable local mirror — full-text search and analytics over your archived posts without re-…
 
 Highlights (not in the official API docs):
+  • post resolve   Normalize any X post URL or raw post ID into a canonical structured record with provenance, author context, and suggested next workflow commands.
+  • thread context   Resolve a post URL or ID, then include parent, quote, and optionally bounded reply context from local/live sources.
+  • collection save/list/export   Save resolved posts into durable local collections and export source material as markdown, JSON, JSONL, or CSV.
   • thread show   Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits.
   • thread compose   Split a markdown file into a numbered, 280-char-packed self-reply thread; prints by default and only posts with --post.
   • articles-publish-md   Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly.
@@ -270,6 +273,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newArticlesCmd(flags))
 	rootCmd.AddCommand(newNovelArticlesPublishMdCmd(flags))
+	rootCmd.AddCommand(newNovelPostCmd(flags))
+	rootCmd.AddCommand(newNovelCollectionCmd(flags))
 	rootCmd.AddCommand(newNovelThreadCmd(flags))
 	// Novel: attach `bookmarks find` to the generated `users bookmarks` parent.
 	// Walking the built tree keeps the generated parent file untouched, so a
