@@ -252,20 +252,17 @@ func isProfileArrayFlag(fl *pflag.Flag) bool {
 
 func profileArrayValues(raw string) []string {
 	raw = strings.TrimSpace(raw)
-	if strings.HasPrefix(raw, "[") && strings.HasSuffix(raw, "]") {
-		inner := strings.TrimSuffix(strings.TrimPrefix(raw, "["), "]")
-		if strings.TrimSpace(inner) == "" {
-			return nil
-		}
-		parts := strings.Split(inner, ",")
-		out := make([]string, 0, len(parts))
-		for _, part := range parts {
-			out = append(out, strings.TrimSpace(part))
-		}
-		return out
-	}
 	if raw == "" {
 		return nil
+	}
+	if strings.HasPrefix(raw, "[") && strings.HasSuffix(raw, "]") {
+		var items []string
+		if err := json.Unmarshal([]byte(raw), &items); err == nil {
+			if len(items) == 0 {
+				return nil
+			}
+			return items
+		}
 	}
 	return []string{raw}
 }

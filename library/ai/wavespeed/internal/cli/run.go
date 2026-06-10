@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -503,11 +504,32 @@ func newOpenCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("opening %s: %w", p, err)
 			}
 			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "open %s\n", p)
+				name, args, err := openCommand(p, runtime.GOOS)
+				if err != nil {
+					return err
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "%s %s\n", name, strings.Join(args, " "))
 				return nil
 			}
-			return exec.CommandContext(cmd.Context(), "open", p).Run()
+			name, args, err := openCommand(p, runtime.GOOS)
+			if err != nil {
+				return err
+			}
+			return exec.CommandContext(cmd.Context(), name, args...).Run()
 		},
+	}
+}
+
+func openCommand(p, goos string) (string, []string, error) {
+	switch goos {
+	case "darwin":
+		return "open", []string{p}, nil
+	case "windows":
+		return "rundll32", []string{"url.dll,FileProtocolHandler", p}, nil
+	case "linux":
+		return "xdg-open", []string{p}, nil
+	default:
+		return "", nil, fmt.Errorf("opening files is not supported on %s", goos)
 	}
 }
 
