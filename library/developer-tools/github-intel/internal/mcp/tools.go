@@ -15,13 +15,13 @@ import (
 	"strings"
 	"time"
 
-	"github-intel-pp-cli/internal/cli"
-	"github-intel-pp-cli/internal/client"
-	"github-intel-pp-cli/internal/config"
-	"github-intel-pp-cli/internal/mcp/cobratree"
-	"github-intel-pp-cli/internal/store"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/store"
 )
 
 const (

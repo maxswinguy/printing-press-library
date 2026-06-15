@@ -1,4 +1,4 @@
-module github-intel-pp-cli
+module github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel
 
 go 1.26
 

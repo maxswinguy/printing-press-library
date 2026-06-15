@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github-intel-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/store"
 	"github.com/spf13/cobra"
 )
 

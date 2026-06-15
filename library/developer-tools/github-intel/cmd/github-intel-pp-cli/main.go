@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"github-intel-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/cli"
 )
 
 func main() {

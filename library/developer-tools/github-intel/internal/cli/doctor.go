@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github-intel-pp-cli/internal/client"
-	"github-intel-pp-cli/internal/cliutil"
-	"github-intel-pp-cli/internal/config"
-	"github-intel-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/store"
 	"github.com/spf13/cobra"
 )
 

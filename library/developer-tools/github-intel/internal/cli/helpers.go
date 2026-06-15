@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github-intel-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"

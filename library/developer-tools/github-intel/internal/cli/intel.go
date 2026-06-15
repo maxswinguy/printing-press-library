@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github-intel-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/github-intel/internal/client"
 	"github.com/spf13/cobra"
 )
 
