@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-06-15T06:30:12.098431Z",
-  "printing_press_version": "4.2.1",
+  "printing_press_version": "4.24.0",
   "api_name": "lobsters",
   "display_name": "Lobsters",
   "cli_name": "lobsters-pp-cli",

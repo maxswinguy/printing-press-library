@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "lobsters-pp-mcp",
   "display_name": "Lobsters",
-  "version": "4.2.1",
+  "version": "4.24.0",
   "description": "Read Lobsters stories, tags, comments, and front-page/news feeds from public JSON endpoints.",
   "author": {
     "name": "CLI Printing Press"
