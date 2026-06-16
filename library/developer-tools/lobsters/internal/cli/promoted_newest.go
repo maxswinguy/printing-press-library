@@ -29,7 +29,7 @@ func newNewestPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/newest/page/{page}.json"
 			path = replacePathParam(path, "page", fmt.Sprintf("%v", flagPage))
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "newest", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "newest", true, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

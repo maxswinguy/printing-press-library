@@ -192,6 +192,10 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 					_, _, _ = db.UpsertBatch(resourceType, []json.RawMessage{data})
 					return
 				}
+				if _, ok := envelope["short_id"]; ok {
+					_, _, _ = db.UpsertBatch(resourceType, []json.RawMessage{data})
+					return
+				}
 			}
 		}
 	}

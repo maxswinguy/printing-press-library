@@ -41,7 +41,7 @@ func newTPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "tag", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "t", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "t", true, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

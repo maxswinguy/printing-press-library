@@ -27,7 +27,7 @@ func newHottestJsonPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/hottest.json"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "hottest-json", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "hottest-json", true, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
