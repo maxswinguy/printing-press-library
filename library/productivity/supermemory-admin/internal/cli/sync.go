@@ -168,8 +168,13 @@ Resource scoping:
 							_ = db.SaveSyncState(resource, "", 0)
 						}
 					}
-				} else if humanFriendly {
-					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
+				} else {
+					message := "--latest-only ignored because --since is set; --since takes precedence"
+					if humanFriendly {
+						fmt.Fprintln(os.Stderr, "warning: "+message)
+					} else {
+						fmt.Fprintln(syncEventWriter, syncWarningJSON("", "", 0, "latest_only_ignored", message))
+					}
 				}
 			}
 			// effectiveLatestOnly drives the max_pages_cap_hit suppression

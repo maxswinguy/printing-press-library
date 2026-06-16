@@ -119,10 +119,6 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			Description: "Optional Supermemory project id; sent as the x-sm-project header to scope all operations.",
 		},
 	}
-	authMode := "bearer_token"
-	if authMode == "" {
-		authMode = "none"
-	}
 	profiles := ListProfileNames()
 	if profiles == nil {
 		profiles = []string{}
@@ -135,7 +131,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
-			Mode:    authMode,
+			Mode:    "bearer_token",
 			EnvVars: envVars,
 		},
 		Discovery:                  buildAgentDiscoveryContext(),

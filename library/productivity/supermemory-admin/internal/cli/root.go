@@ -276,6 +276,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	c.UserAgent = "supermemory-admin-pp-cli/" + version
 	return c, nil
 }
 

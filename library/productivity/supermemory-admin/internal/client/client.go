@@ -36,6 +36,7 @@ type Client struct {
 	HTTPClient *http.Client
 	DryRun     bool
 	NoCache    bool
+	UserAgent  string
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
@@ -71,6 +72,7 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
 		Config:     cfg,
 		HTTPClient: httpClient,
+		UserAgent:  "supermemory-admin-pp-cli",
 		cacheDir:   cacheDir,
 		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
 	}
@@ -610,7 +612,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			req.Header.Del(BinaryResponseHeader)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "supermemory-admin-pp-cli/3.0.0")
+			req.Header.Set("User-Agent", c.UserAgent)
 		}
 		// Go's net/http omits Accept by default; browsers, curl, and other
 		// stdlibs always send it. Fingerprint-checking WAFs (Imperva, Akamai,
