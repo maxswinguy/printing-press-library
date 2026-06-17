@@ -8762,6 +8762,40 @@
       }
     },
     {
+      "name": "pangolin",
+      "category": "developer-tools",
+      "api": "pangolin",
+      "description": "The first agent-native CLI for Pangolin — every endpoint, plus offline SQLite, cross-org audits",
+      "search_terms": [
+        "pangolin",
+        "pangolin-pp-cli",
+        "Cross-org health audit",
+        "audit",
+        "Find stale targets, orphaned resources, and missing role bindings across every org you administer, in one command.",
+        "Certificate expiry watch",
+        "cert-watch",
+        "List certificates sorted by days-until-expiry across every org, with a configurable warning window.",
+        "Full config backup",
+        "backup",
+        "Export the complete Pangolin configuration — orgs, sites, resources, targets, roles, IdPs — as version-controllable JSON.",
+        "Config restore from backup",
+        "restore",
+        "Re-apply a backup against a fresh Pangolin install, in the correct dependency order, with dry-run preview.",
+        "Access graph",
+        "access-graph",
+        "Answer 'who can reach what' by joining users, roles, resources, and orgs into one queryable view.",
+        "One-shot expose",
+        "expose",
+        "Create site (if needed), create resource, attach target, bind a role — in one command, with dry-run preview.",
+        "Doctor with base-URL discovery",
+        "doctor",
+        "Validate auth, probe both /v1 and /api/v1 mount paths, and report the working integration-API base URL with environment-variable guidance."
+      ],
+      "path": "library/developer-tools/pangolin",
+      "printer": "CarlF01",
+      "printer_name": "CFinney"
+    },
+    {
       "name": "pcgs",
       "category": "other",
       "api": "Pcgs",
@@ -10407,6 +10441,55 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "scrape-do",
+      "category": "developer-tools",
+      "api": "Scrape.do",
+      "description": "The first CLI for Scrape-do with Google SERP scraping plus a credit and concurrency governor",
+      "search_terms": [
+        "scrape-do",
+        "Scrape.do",
+        "scrape-do-pp-cli",
+        "The first CLI for Scrape-do with Google SERP scraping plus a credit and concurrency governor",
+        "SERP rank-drift diff",
+        "drift",
+        "Diff a Google query's two most recent stored SERPs and see exactly which results moved, appeared, or dropped — entirely offline, no credits spent.",
+        "Multi-agent safe fan-out",
+        "batch",
+        "Dispatch a list of URLs or queries through a shared concurrency lease and per-call credit ledger, auto-retrying only the non-billed 429/502/510 classes and stopping before a credit ceiling.",
+        "Local credit ledger + spend forecast",
+        "budget",
+        "Attribute spend by mode and query-family from a local ledger debited off the authoritative per-call cost header, joined with cached account state to forecast burn-rate against days remaining.",
+        "Pre-flight cost estimator",
+        "cost",
+        "Print the exact credit cost a request will incur — accounting for render, super-proxy, Google endpoints, and per-domain overrides — before spending a single credit.",
+        "Cross-query movers digest",
+        "movers",
+        "Scan every tracked query's latest-versus-previous SERP snapshot and surface only the queries whose top positions moved past a threshold."
+      ],
+      "path": "library/developer-tools/scrape-do",
+      "printer": "Charles-Garrison",
+      "printer_name": "Charles Garrison",
+      "creator": {
+        "handle": "Charles-Garrison",
+        "name": "Charles Garrison"
+      },
+      "mcp": {
+        "binary": "scrape-do-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SCRAPEDO_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
