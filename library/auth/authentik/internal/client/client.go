@@ -113,14 +113,17 @@ func (c *Client) GetWithHeaders(ctx context.Context, path string, params map[str
 	if err := c.validateCachedRequestAuth(ctx); err != nil {
 		return nil, err
 	}
+	// Sensitive endpoints (token/secret retrieval) bypass cache entirely —
+	// never read stale secrets, never write cleartext credentials to disk.
+	sensitive := isSensitivePath(path)
 	// Check cache for GET requests
-	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
+	if !sensitive && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		if cached, ok := c.readCache(path, params); ok {
 			return cached, nil
 		}
 	}
 	result, _, err := c.do(ctx, "GET", path, params, nil, headers)
-	if err == nil && !c.NoCache && !c.DryRun && c.cacheDir != "" {
+	if err == nil && !sensitive && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		c.writeCache(path, params, result)
 	}
 	return result, err
@@ -205,9 +208,26 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	os.MkdirAll(c.cacheDir, 0o700)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	os.WriteFile(cacheFile, []byte(data), 0o600)
+}
+
+// isSensitivePath reports whether path returns token keys or credential data
+// that must never be written to the on-disk cache.
+func isSensitivePath(path string) bool {
+	sensitive := []string{
+		"view_key",
+		"access-tokens",
+		"refresh-tokens",
+		"connection-tokens",
+	}
+	for _, s := range sensitive {
+		if strings.Contains(path, s) {
+			return true
+		}
+	}
+	return false
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read

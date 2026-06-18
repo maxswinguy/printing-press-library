@@ -15,7 +15,8 @@
       "command": "${__dirname}/bin/authentik-pp-mcp",
       "args": [],
       "env": {
-        "AUTHENTIK_TOKEN": "${user_config.authentik_token}"
+        "AUTHENTIK_TOKEN": "${user_config.authentik_token}",
+        "AUTHENTIK_BASE_URL": "${user_config.authentik_base_url}"
       }
     }
   },
@@ -25,6 +26,13 @@
       "title": "AUTHENTIK_TOKEN",
       "description": "Sets AUTHENTIK_TOKEN for the authentik MCP server.",
       "sensitive": true,
+      "required": true
+    },
+    "authentik_base_url": {
+      "type": "string",
+      "title": "AUTHENTIK_BASE_URL",
+      "description": "Base URL of your authentik instance (e.g. https://authentik.example.com).",
+      "sensitive": false,
       "required": true
     }
   },

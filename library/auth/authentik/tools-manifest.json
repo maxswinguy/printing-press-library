@@ -12,7 +12,8 @@
     "type": "bearer_token",
     "header": "Authorization",
     "env_vars": [
-      "AUTHENTIK_TOKEN"
+      "AUTHENTIK_TOKEN",
+      "AUTHENTIK_BASE_URL"
     ],
     "env_var_specs": [
       {
@@ -20,6 +21,13 @@
         "kind": "per_call",
         "required": true,
         "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "AUTHENTIK_BASE_URL",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
         "inferred": true
       }
     ]
@@ -22903,7 +22911,7 @@
     },
     {
       "name": "sources_oauth-types-list",
-      "description": "Get all creatable source types. If ?name is set, only returns the type for \u003cname\u003e. If \u003cname\u003e isn't found, returns the default type. Optional: name.",
+      "description": "Get all creatable source types. If ?name is set, only returns the type for <name>. If <name> isn't found, returns the default type. Optional: name.",
       "method": "GET",
       "path": "/sources/oauth/source_types/",
       "params": [
