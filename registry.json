@@ -7355,6 +7355,50 @@
       }
     },
     {
+      "name": "medium-reader",
+      "category": "media-and-entertainment",
+      "api": "Medium Reader",
+      "description": "Read any Medium author, publication, or tag as a local, full-text-searchable corpus.",
+      "search_terms": [
+        "medium-reader",
+        "Medium Reader",
+        "medium-reader-pp-cli",
+        "Read any Medium author, publication, or tag as a local, full-text-searchable corpus.",
+        "Author archive",
+        "author-archive",
+        "Mirror a writer's entire body of work into local SQLite, full-text searchable offline.",
+        "Corpus search",
+        "corpus",
+        "Full-text and regex search across everything you have synced locally (authors, publications, tags).",
+        "Author compare",
+        "author-compare",
+        "Compare two writers on output cadence, topic mix, and engagement (claps and voters per article) from locally archived data.",
+        "New-since digest",
+        "digest",
+        "A deduped, ranked 'what is new since last sync' across the authors, publications, and tags you have archived."
+      ],
+      "path": "library/media-and-entertainment/medium-reader",
+      "printer": "maxswinguy",
+      "printer_name": "Maxime Delavergne",
+      "creator": {
+        "handle": "maxswinguy",
+        "name": "Maxime Delavergne"
+      },
+      "mcp": {
+        "binary": "medium-reader-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 10,
+        "public_tool_count": 0,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "mercury",
       "category": "payments",
       "api": "Mercury",
@@ -7606,6 +7650,43 @@
       "creator": {
         "handle": "count",
         "name": "Count"
+      }
+    },
+    {
+      "name": "morgen",
+      "category": "productivity",
+      "api": "Morgen",
+      "description": "Morgen calendar & tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers",
+      "search_terms": [
+        "morgen",
+        "morgen-pp-cli",
+        "Morgen calendar & tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers",
+        "Daily Agenda",
+        "agenda",
+        "Unified chronological day view merging calendar events and due tasks across all connected accounts."
+      ],
+      "path": "library/productivity/morgen",
+      "printer": "nickscarabosio",
+      "printer_name": "Nick Scarabosio",
+      "contributors": [
+        {
+          "handle": "nickscarabosio",
+          "name": "Nick Scarabosio"
+        }
+      ],
+      "mcp": {
+        "binary": "morgen-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 21,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "MORGEN_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
