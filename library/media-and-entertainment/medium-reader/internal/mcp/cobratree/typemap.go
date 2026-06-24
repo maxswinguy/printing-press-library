@@ -21,6 +21,13 @@ func toolOptionsForFlags(cmd *cobra.Command) []mcplib.ToolOption {
 		if flag == nil || flag.Hidden || flag.Deprecated != "" {
 			return
 		}
+		// PATCH(medium-reader: don't advertise blocked root flags) — a flag in
+		// blockedRootFlags is dropped by cliArgsFromMCP before argv, so exposing
+		// it in the tool schema would let an agent set it only to have it
+		// silently ignored. Omit it here too. See .printing-press-patches/.
+		if blockedRootFlags[flag.Name] {
+			return
+		}
 		if seen[flag.Name] {
 			return
 		}

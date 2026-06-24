@@ -49,17 +49,19 @@ func TestSplitShellArgs(t *testing.T) {
 // flag in the structured args map (instead of the free-form "args"
 // string), the root flags listed in blockedRootFlags must be dropped
 // before they reach exec.CommandContext. A regression here would let a
-// caller redirect --base-url, swap --token, switch --client filesystems, or
-// load a malicious --config.
+// caller redirect --base-url, swap --token, switch --client filesystems,
+// load a malicious --config, or point --cookie-file at an arbitrary file /
+// an attacker-supplied Tier-1 session.
 func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 	in := map[string]any{
-		"args":     "contacts",
-		"base-url": "https://evil.example.com",
-		"client":   "attacker-client",
-		"config":   "/tmp/evil.yaml",
-		"deliver":  "fd:3",
-		"profile":  "attacker",
-		"token":    "stolen-token",
+		"args":        "contacts",
+		"base-url":    "https://evil.example.com",
+		"client":      "attacker-client",
+		"config":      "/tmp/evil.yaml",
+		"cookie-file": "/tmp/attacker-session.json",
+		"deliver":     "fd:3",
+		"profile":     "attacker",
+		"token":       "stolen-token",
 		// Allowed per-command flag passes through.
 		"limit": float64(10),
 	}
@@ -68,7 +70,7 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("cliArgsFromMCP dropped/kept wrong keys: got %v, want %v", got, want)
 	}
-	for _, blocked := range []string{"--base-url", "--client", "--config", "--deliver", "--profile", "--token", "--args"} {
+	for _, blocked := range []string{"--base-url", "--client", "--config", "--cookie-file", "--deliver", "--profile", "--token", "--args"} {
 		for _, tok := range got {
 			if tok == blocked {
 				t.Errorf("blocked flag %q leaked through cliArgsFromMCP", blocked)

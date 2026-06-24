@@ -110,7 +110,7 @@ These capabilities aren't available in any other tool — and they run keyless, 
   ```
 
 ### Comparative analysis
-- **`author-compare`** — Compare two writers on output cadence, topic mix, and engagement (claps and voters per article) from locally archived data.
+- **`author-compare`** — Compare two writers on output cadence, topic mix, and engagement (claps, voters, responses, and reading time per article) from locally archived data. Engagement is keyless/Tier-0, including for member-only posts.
 
   _Use this to weigh two writers or publications before committing to follow or archive one._
 

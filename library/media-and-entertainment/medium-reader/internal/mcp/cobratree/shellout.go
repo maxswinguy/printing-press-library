@@ -49,14 +49,23 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 // per-client filesystem, load a malicious config file, or change the delivery
 // target, all of which sit outside the per-command surface the agent is
 // supposed to be calling.
+//
+// PATCH(medium-reader: block hand-added --cookie-file from MCP override) —
+// cookie-file is a Tier-1 credential/path flag hand-added to root.go for this
+// keyless fork. The generator never emits a credential flag, so its denylist
+// correctly omits it; this fork must add it itself. Without this entry an MCP
+// client could set {"cookie-file": "/any/path"} and point the companion binary
+// at an arbitrary file or an attacker-supplied session. See
+// .printing-press-patches/.
 var blockedRootFlags = map[string]bool{
-	"args":     true,
-	"base-url": true,
-	"client":   true,
-	"config":   true,
-	"deliver":  true,
-	"profile":  true,
-	"token":    true,
+	"args":        true,
+	"base-url":    true,
+	"client":      true,
+	"config":      true,
+	"cookie-file": true,
+	"deliver":     true,
+	"profile":     true,
+	"token":       true,
 }
 
 func cliArgsFromMCP(args map[string]any) []string {
