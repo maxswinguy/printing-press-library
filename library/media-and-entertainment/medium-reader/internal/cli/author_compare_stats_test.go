@@ -108,3 +108,19 @@ func TestComputeAuthorStats_EmitsAvgResponsesKey(t *testing.T) {
 		t.Errorf("serialized stats missing avg_responses key: %s", b)
 	}
 }
+
+// TestRound2_HalfRoundsAwayFromZeroBothSigns pins that the .5 boundary rounds
+// away from zero for BOTH signs. 0.125*100 == 12.5 exactly (0.125 = 1/8 is
+// representable), so this is not a floating-point-ambiguous case. The earlier
+// truncating impl (int64(f*100+0.5)) rounded negatives toward zero, yielding
+// round2(-0.125) == -0.12; engagement metrics are all non-negative today, but
+// the symmetric rule is the correct, future-proof behavior.
+func TestRound2_HalfRoundsAwayFromZeroBothSigns(t *testing.T) {
+	t.Parallel()
+	if got := round2(0.125); got != 0.13 {
+		t.Errorf("round2(0.125) = %v, want 0.13", got)
+	}
+	if got := round2(-0.125); got != -0.13 {
+		t.Errorf("round2(-0.125) = %v, want -0.13 (negative .5 must round away from zero)", got)
+	}
+}

@@ -5,12 +5,13 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"sort"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/medium-reader/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/medium-reader/internal/store"
 )
 
 // authorStats is the per-author rollup computed from archived rows.
@@ -215,5 +216,8 @@ func asStringSlice(v any) []string {
 
 // round2 rounds to two decimal places for stable, readable averages.
 func round2(f float64) float64 {
-	return float64(int64(f*100+0.5)) / 100
+	// math.Round rounds half away from zero for both signs (the truncating
+	// int64(f*100+0.5) form rounded negatives toward zero). All engagement
+	// metrics are non-negative today, so this only future-proofs derived metrics.
+	return math.Round(f*100) / 100
 }
