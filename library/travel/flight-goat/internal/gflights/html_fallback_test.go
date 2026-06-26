@@ -172,6 +172,20 @@ func TestFlightsFromHTMLParsesEmbeddedPayload(t *testing.T) {
 	}
 }
 
+func TestFlightsFromHTMLParsesStandaloneDS1ScriptPayload(t *testing.T) {
+	html := `<!doctype html><html><body>
+<script class="ds:1">window._unused = {data:` + string(loadFixture(t, "aus_lax_embedded_ds1.json")) + `, sideChannel:{}};</script>
+</body></html>`
+
+	flights := flightsFromHTML(html, "USD")
+	if len(flights) == 0 {
+		t.Fatal("flightsFromHTML parsed 0 flights from standalone script.ds:1 payload")
+	}
+	if pageMissingFlightData(html) {
+		t.Fatal("script.ds:1 payload misclassified as missing flight data")
+	}
+}
+
 func TestSortFlightsClientSide(t *testing.T) {
 	mk := func(price float64, duration int, dep, arr string) Flight {
 		return Flight{Price: price, DurationMinutes: duration, Legs: []Leg{{
@@ -221,6 +235,13 @@ func TestPageMissingFlightData(t *testing.T) {
 	}
 	if pageMissingFlightData(wrapDs1HTML([]byte(`[null,[],[]]`))) {
 		t.Fatal("page with embedded callbacks misclassified as missing data")
+	}
+}
+
+func TestPageErrorStatusIsMissingFlightData(t *testing.T) {
+	html := `<html><body><script class="ds:1">AF_initDataCallback({key:'ds:1', data:[null,[],[]], errorHasStatus: true});</script></body></html>`
+	if !pageMissingFlightData(html) {
+		t.Fatal("embedded ds:1 errorHasStatus page not detected")
 	}
 }
 

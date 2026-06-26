@@ -236,6 +236,53 @@ func extractInitDataBlobs(html string) []string {
 	return blobs
 }
 
+func extractDS1ScriptBlobs(html string) []string {
+	const scriptMark = "<script"
+	const dataMark = "data:"
+	var blobs []string
+	rest := html
+	for {
+		si := strings.Index(rest, scriptMark)
+		if si < 0 {
+			break
+		}
+		rest = rest[si+len(scriptMark):]
+		closeTag := strings.Index(rest, ">")
+		if closeTag < 0 {
+			break
+		}
+		attrs := rest[:closeTag]
+		afterOpen := rest[closeTag+1:]
+		endTag := strings.Index(afterOpen, "</script>")
+		if endTag < 0 {
+			break
+		}
+		body := afterOpen[:endTag]
+		rest = afterOpen[endTag+len("</script>"):]
+		if !strings.Contains(attrs, "ds:1") {
+			continue
+		}
+		di := strings.Index(body, dataMark)
+		if di < 0 {
+			continue
+		}
+		seg := body[di+len(dataMark):]
+		j := 0
+		for j < len(seg) && (seg[j] == ' ' || seg[j] == '\n' || seg[j] == '\t' || seg[j] == '\r') {
+			j++
+		}
+		if j >= len(seg) || seg[j] != '[' {
+			continue
+		}
+		end, ok := scanBalancedArray(seg[j:])
+		if !ok {
+			continue
+		}
+		blobs = append(blobs, seg[j:j+end])
+	}
+	return blobs
+}
+
 // scanBalancedArray returns the exclusive end offset of the JSON array that
 // starts at s[0] == '['. String literals and backslash escapes are honored.
 func scanBalancedArray(s string) (int, bool) {
@@ -303,7 +350,8 @@ func flightsFromEmbeddedPayload(inner []any, currency string) []Flight {
 // several unrelated blobs; only one embeds the shopping results).
 func flightsFromHTML(html, currency string) []Flight {
 	var best []Flight
-	for _, blob := range extractInitDataBlobs(html) {
+	blobs := append(extractInitDataBlobs(html), extractDS1ScriptBlobs(html)...)
+	for _, blob := range blobs {
 		var inner []any
 		if err := json.Unmarshal([]byte(blob), &inner); err != nil {
 			continue
@@ -348,7 +396,9 @@ func searchViaHTML(ctx context.Context, opts SearchOptions, currencyCode string)
 // redesign, as opposed to a legitimately empty result set (which still embeds
 // AF_initDataCallback blobs).
 func pageMissingFlightData(html string) bool {
-	return strings.Contains(html, "consent.google.com") || !strings.Contains(html, "AF_initDataCallback(")
+	return strings.Contains(html, "consent.google.com") ||
+		strings.Contains(html, "errorHasStatus: true") ||
+		(!strings.Contains(html, "AF_initDataCallback(") && !strings.Contains(html, "ds:1"))
 }
 
 // sortFlightsClientSide orders fallback results for the sort keys the page
