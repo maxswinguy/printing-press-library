@@ -138,6 +138,9 @@ stay literal.`,
 			if err != nil {
 				return err
 			}
+			if !bodySet && health == "" {
+				return usageErr(fmt.Errorf("specify at least one of --body, --body-file, --body-stdin, or --health"))
+			}
 			input := map[string]any{}
 			if bodySet {
 				input["body"] = body
@@ -145,9 +148,11 @@ stay literal.`,
 			if health != "" {
 				input["health"] = health
 			}
+			if project != "" {
+				input["projectId"] = project
+			}
 			if flags.dryRun {
 				dryOut := map[string]any{
-					"project":     project,
 					"projectName": projectName,
 					"input":       input,
 				}
