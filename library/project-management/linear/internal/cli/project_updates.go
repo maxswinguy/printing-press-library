@@ -40,6 +40,9 @@ func newProjectUpdatesListCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyLiveReadError(err, flags)
 			}
+			if projectID == "" {
+				return usageErr(fmt.Errorf("could not resolve project; pass --project <uuid> or --project-name <name>"))
+			}
 			if limit <= 0 {
 				limit = 25
 			}
