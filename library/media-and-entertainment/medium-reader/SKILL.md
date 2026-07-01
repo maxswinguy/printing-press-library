@@ -288,6 +288,20 @@ Parse `$ARGUMENTS`:
 
 The MCP server exposes 10 keyless tools (feed, read, search, author_archive, author_compare, corpus, digest, analytics, plus a local SQL tool and a context tool). To unlock member full bodies, pass your own cookie via the `MEDIUM_SESSION` env on the server.
 
+## Updating
+
+Move to the latest published build:
+
+1. **CLI + skill** — re-run the installer (or its `update` alias):
+   ```bash
+   npx -y @mvanhorn/printing-press-library update medium-reader
+   ```
+2. **MCP server** — a SEPARATE binary the installer does not touch. Re-run the install, then restart the MCP so it loads the new build:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/medium-reader/cmd/medium-reader-pp-mcp@latest
+   ```
+3. **Claude Desktop (MCPB)** — re-download the latest `.mcpb` and double-click.
+
 ## Direct Use
 
 1. Check if installed: `which medium-reader-pp-cli`

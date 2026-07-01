@@ -29,3 +29,27 @@ func TestToolOptionsForFlags_OmitsBlockedRootFlags(t *testing.T) {
 		t.Errorf("normal per-command flag 'limit' should still be advertised in the tool schema")
 	}
 }
+
+// TestToolOptionForPositional_ExposesRequiredQuery pins the schema half of the
+// N1 port: a named positional is advertised as a required string property, so an
+// MCP client sees that search/corpus need a "query" instead of guessing it must
+// smuggle the term through "args".
+func TestToolOptionForPositional_ExposesRequiredQuery(t *testing.T) {
+	positionals := namedPositionalsFor([]string{"search"})
+	if len(positionals) != 1 {
+		t.Fatalf("expected one positional for search, got %d", len(positionals))
+	}
+	tool := mcplib.NewTool("search", toolOptionForPositional(positionals[0]))
+	if _, ok := tool.InputSchema.Properties["query"]; !ok {
+		t.Error("search must advertise a named 'query' property (finding N1)")
+	}
+	required := false
+	for _, r := range tool.InputSchema.Required {
+		if r == "query" {
+			required = true
+		}
+	}
+	if !required {
+		t.Error("search 'query' positional should be marked required")
+	}
+}

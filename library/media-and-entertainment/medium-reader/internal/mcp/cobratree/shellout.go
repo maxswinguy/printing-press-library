@@ -25,7 +25,18 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 		}
 		args := req.GetArguments()
 		finalArgs := append([]string{}, prefixArgs...)
+		// PATCH(medium-reader: surface named positional "query" for search/corpus)
+		// — consume any named positional values out of a copy of the argument map
+		// BEFORE cliArgsFromMCP runs, so they are appended as bare positional argv
+		// tokens rather than re-emitted as --flags (finding N1, and the double-emit
+		// trap). See typemap.go / .printing-press-patches/.
+		remaining, positionalTokens, rejected := positionalTokensFromMCP(args, namedPositionalsFor(commandPath))
+		if rejected != "" {
+			return mcplib.NewToolResultError(fmt.Sprintf("flag-like value %q not allowed for a positional argument; use structured tool parameters instead", rejected)), nil
+		}
+		args = remaining
 		finalArgs = append(finalArgs, cliArgsFromMCP(args)...)
+		finalArgs = append(finalArgs, positionalTokens...)
 		if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
 			tokens := SplitShellArgs(raw)
 			for _, t := range tokens {
@@ -106,6 +117,42 @@ func cliArgsFromMCP(args map[string]any) []string {
 		}
 	}
 	return out
+}
+
+// positionalTokensFromMCP consumes the named positional values for a command out
+// of the argument map. It returns the remaining map (positional keys removed, so
+// cliArgsFromMCP never re-emits them as --flags), the positional values as bare
+// argv tokens in declared order, and a non-empty rejected token if any value is
+// flag-like (mirroring the "args"-field guard). When positionals is empty it
+// returns the argument map unchanged.
+//
+// PATCH(medium-reader: surface named positional "query" for search/corpus) — see
+// typemap.go / .printing-press-patches/.
+func positionalTokensFromMCP(args map[string]any, positionals []positionalArg) (map[string]any, []string, string) {
+	if len(positionals) == 0 {
+		return args, nil, ""
+	}
+	remaining := make(map[string]any, len(args))
+	for k, v := range args {
+		remaining[k] = v
+	}
+	var tokens []string
+	for _, p := range positionals {
+		delete(remaining, p.InputName)
+		v, ok := args[p.InputName]
+		if !ok || v == nil {
+			continue
+		}
+		text := strings.TrimSpace(fmt.Sprintf("%v", v))
+		if text == "" {
+			continue
+		}
+		if text != "-" && strings.HasPrefix(text, "-") {
+			return remaining, nil, text
+		}
+		tokens = append(tokens, text)
+	}
+	return remaining, tokens, ""
 }
 
 // SplitShellArgs whitespace-splits with shell-style quote preservation.
