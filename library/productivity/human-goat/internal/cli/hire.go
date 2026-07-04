@@ -229,14 +229,27 @@ func newNovelHireCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(fmt.Errorf("hire TaskRabbit booking: %w", err), flags)
 			}
 
+			// Prefer a confirmed charge from the hire response; fall back to the
+			// pre-checkout estimate and say so, so all_in_total is never presented
+			// as a settled amount when it is only an estimate.
+			allInTotal := pricing.FormatCents(totalCents)
+			totalConfirmed := false
+			if confirmedCents, ok := hireConfirmedTotalCents(body); ok {
+				allInTotal = pricing.FormatCents(confirmedCents)
+				totalConfirmed = true
+			}
 			booked := hireBookedResult{
-				Booked:        true,
-				Tasker:        taskerDisplayName(best),
-				AllInTotal:    pricing.FormatCents(totalCents),
-				JobID:         hireJobID(body),
-				RequestedDate: date,
-				Date:          slotDate,
-				SlotLabel:     slotLabel,
+				Booked:         true,
+				Tasker:         taskerDisplayName(best),
+				AllInTotal:     allInTotal,
+				TotalConfirmed: totalConfirmed,
+				JobID:          hireJobID(body),
+				RequestedDate:  date,
+				Date:           slotDate,
+				SlotLabel:      slotLabel,
+			}
+			if !totalConfirmed {
+				booked.Note = joinNotes(booked.Note, "all_in_total is a pre-checkout estimate; confirm the final charge on the TaskRabbit invoice")
 			}
 			// Surface a date change loudly: firstTaskRabbitSlot falls back to
 			// another day when the requested date has no availability, and a
@@ -272,14 +285,15 @@ type hireConfirmSummary struct {
 }
 
 type hireBookedResult struct {
-	Booked        bool   `json:"booked"`
-	Tasker        string `json:"tasker"`
-	AllInTotal    string `json:"all_in_total"`
-	JobID         string `json:"job_id,omitempty"`
-	RequestedDate string `json:"requested_date,omitempty"`
-	Date          string `json:"date,omitempty"`
-	SlotLabel     string `json:"slot_label,omitempty"`
-	Note          string `json:"note,omitempty"`
+	Booked         bool   `json:"booked"`
+	Tasker         string `json:"tasker"`
+	AllInTotal     string `json:"all_in_total"`
+	TotalConfirmed bool   `json:"total_confirmed"`
+	JobID          string `json:"job_id,omitempty"`
+	RequestedDate  string `json:"requested_date,omitempty"`
+	Date           string `json:"date,omitempty"`
+	SlotLabel      string `json:"slot_label,omitempty"`
+	Note           string `json:"note,omitempty"`
 }
 
 func parseOptionalFloatFlag(name, value string) (float64, error) {
@@ -446,6 +460,54 @@ func hireDescription(note, query string) string {
 	return fmt.Sprintf("Need help with %s.", strings.TrimSpace(query))
 }
 
+// hireConfirmedTotalCents extracts a settled charge from the hire response when
+// TaskRabbit returns one, so the booked result can report a confirmed total
+// rather than the pre-checkout estimate.
+func hireConfirmedTotalCents(raw json.RawMessage) (int, bool) {
+	if len(raw) == 0 {
+		return 0, false
+	}
+	var decoded any
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		return 0, false
+	}
+	for _, key := range []string{"all_in_total_cents", "total_charged_cents", "charge_total_cents", "invoice_total_cents", "total_cents", "amount_cents"} {
+		if cents, ok := findIntFieldByKey(decoded, key); ok && cents > 0 {
+			return cents, true
+		}
+	}
+	return 0, false
+}
+
+// findIntFieldByKey recursively finds the first integer value for key.
+func findIntFieldByKey(value any, key string) (int, bool) {
+	switch v := value.(type) {
+	case map[string]any:
+		if item, ok := v[key]; ok {
+			switch n := item.(type) {
+			case float64:
+				return int(n), true
+			case json.Number:
+				if i, err := n.Int64(); err == nil {
+					return int(i), true
+				}
+			}
+		}
+		for _, item := range v {
+			if i, ok := findIntFieldByKey(item, key); ok {
+				return i, true
+			}
+		}
+	case []any:
+		for _, item := range v {
+			if i, ok := findIntFieldByKey(item, key); ok {
+				return i, true
+			}
+		}
+	}
+	return 0, false
+}
+
 func hireJobID(raw json.RawMessage) string {
 	keys := []string{"job_id", "jobId", "booking_id", "bookingId", "task_id", "taskId", "id"}
 	return findJSONID(raw, keys)
@@ -530,6 +592,13 @@ func printHireBookedResult(cmd *cobra.Command, flags *rootFlags, result hireBook
 		{"Booked", fmt.Sprintf("%t", result.Booked)},
 		{"Tasker", result.Tasker},
 		{"All-in total", result.AllInTotal},
+	}
+	if result.AllInTotal != "" {
+		confirmed := "estimate"
+		if result.TotalConfirmed {
+			confirmed = "confirmed"
+		}
+		rows = append(rows, []string{"Total basis", confirmed})
 	}
 	if result.Date != "" {
 		rows = append(rows, []string{"Date", result.Date})

@@ -90,7 +90,7 @@ func newNovelStatusCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().BoolVar(&flagOpen, "open", false, "Show only in-flight work")
+	cmd.Flags().BoolVar(&flagOpen, "open", false, "Show only in-flight work: narrows Magic requests to in-progress ones (TaskRabbit's task list is active-only by API design, so its rows are always in-flight)")
 	return cmd
 }
 
