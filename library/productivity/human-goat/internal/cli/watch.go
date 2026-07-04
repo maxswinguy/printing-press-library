@@ -7,6 +7,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -94,9 +95,16 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 				Limit:     flagLimit,
 			}
 
+		pollLoop:
 			for {
 				rows, err := rankedTaskRabbitRecommendations(pollCtx, tr, category, opts)
 				if err != nil {
+					// Our --max-wait deadline expiring mid-call is a clean timeout,
+					// not a failure: fall through to the friendly message. A cancel
+					// on the parent context (user Ctrl-C) is still surfaced.
+					if pollDeadlineReached(cmd.Context(), err) {
+						break pollLoop
+					}
 					return classifyAPIError(err, flags)
 				}
 				if len(rows) > 0 {
@@ -122,7 +130,11 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 						default:
 						}
 					}
-					return pollCtx.Err()
+					if cmd.Context().Err() != nil {
+						return cmd.Context().Err()
+					}
+					// Our --max-wait deadline elapsed during the wait.
+					break pollLoop
 				case <-timer.C:
 				}
 			}
@@ -140,4 +152,11 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().DurationVar(&flagInterval, "interval", 60*time.Second, "Polling interval")
 	cmd.Flags().DurationVar(&flagMaxWait, "max-wait", 10*time.Minute, "Maximum time to wait for a qualifying opening")
 	return cmd
+}
+
+// pollDeadlineReached reports whether err is the watch loop's own --max-wait
+// deadline expiring (a clean timeout) rather than a real API error or a user
+// cancellation on the parent context.
+func pollDeadlineReached(parent context.Context, err error) bool {
+	return errors.Is(err, context.DeadlineExceeded) && parent.Err() == nil
 }
