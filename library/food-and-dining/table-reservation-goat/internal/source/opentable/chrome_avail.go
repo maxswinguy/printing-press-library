@@ -182,7 +182,13 @@ func (c *Client) ChromeAvailability(
 	// SSR is what hydrates. Akamai cookies (_abck, bm_*) are intentionally
 	// NOT injected — Akamai will issue fresh ones for this session and
 	// validate them against this Chrome instance's behavior.
-	cookies := c.session.HTTPCookies(auth.NetworkOpenTable)
+	// Session may be nil (anonymous availability read, or a client built with
+	// no auth). Availability is anonymous, so skip cookie injection and let
+	// the browser earn its own Akamai cookies.
+	var cookies []*http.Cookie
+	if c.session != nil {
+		cookies = c.session.HTTPCookies(auth.NetworkOpenTable)
+	}
 
 	// Capture state for the response listener
 	type slotCapture struct {
