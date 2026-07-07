@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "substack-framework-sql-corpus-restore",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260706-pp-substack-d6575d7d",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Restored the real framework sql command (an earlier novel_features entry had made the generator stub and shadow it) and case-folded the corpus/author-compare join key to fix silent-empty results.",
+  "reason": "sql and search are FRAMEWORK commands. Listing sql in research.json novel_features made the generator emit a novel-command stub ('TODO: implement novel feature sql') that shadowed the working framework command; internal/cli/sql.go was hand-restored to the real read-only SQL command. Separately, corpus/author-compare joined publications by a host key whose casing differed between writer and reader, so the join silently returned empty; internal/cli/corpus.go now case-folds the join key. Candidate upstream generator report (framework command in novel_features gets stubbed and shadows the real one).",
+  "files": [
+    "internal/cli/sql.go",
+    "internal/cli/corpus.go"
+  ],
+  "validated_outcome": "Read-only SQL over the local corpus verified live; author-compare returns non-empty joins across two archived publications; hermetic tests cover the case-fold."
+}

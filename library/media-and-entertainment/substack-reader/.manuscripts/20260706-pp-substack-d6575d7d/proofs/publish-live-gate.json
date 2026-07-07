@@ -1,0 +1,810 @@
+{
+  "dir": ".",
+  "binary": "/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/substack-pp-cli-dogfood-708787472",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 49,
+  "passed": 49,
+  "failed": 0,
+  "skipped": 36,
+  "commands": [
+    "api",
+    "archive",
+    "author-compare",
+    "categories browse",
+    "categories list",
+    "digest",
+    "doctor",
+    "feedback list",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "publications",
+    "read",
+    "search",
+    "sql",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api <interface>' to see that interface's methods.\n\nUsage:\n  substack-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  substack-pp-cli api\n\n  # Show methods for a specific interface\n  substack-pp-cli api <interface-name>\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'substack-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "archive",
+      "kind": "help",
+      "args": [
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive a Substack publication's posts into the local SQLite corpus for offline read, search, and SQL. Accepts a handle (astralcodexten), a bare host (blog.bytebytego.com), or a full URL. Keyless (Tier 0): archives post metadata + previews for any public publication; the full body of paid posts requires your own session (see the read command).\n\nUsage:\n  substack-pp-cli archive <publication> [flags]\n\nExamples:\n  substack-pp-cli archive astralcodexten --limit 200\n\nFlags:\n      --db string     database path (default: standard location)\n  -h, --help          help for archive\n      --limit int     maximum posts to archive (default 50)\n      --sort string   archive sort order: new | top | community (default \"new\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "archive",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [archive] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "archive",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [archive] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "archive",
+      "kind": "error_path",
+      "args": [
+        "archive",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: fetching archive: GET https://__printing_press_invalid__.substack.com/api/v1/archive?limit=50&offset=0&sort=new: HTTP 404: \n"
+    },
+    {
+      "command": "author-compare",
+      "kind": "help",
+      "args": [
+        "author-compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare two archived publications side by side: how many posts you've\nmirrored, their date range, publishing cadence (posts/week), and free/paid mix.\n\nReads only the local corpus \u2014 archive both publications first\n('substack-pp-cli archive <pub>'). Each publication is matched by the host it\nwas archived under, so pass the same handle/host you archived with.\n\nUsage:\n  substack-pp-cli author-compare <pub-a> <pub-b> [flags]\n\nExamples:\n  substack-pp-cli author-compare astralcodexten blog.bytebytego.com\n\nFlags:\n  -h, --help   help for author-compare\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "author-compare",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [author-compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "author-compare",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [author-compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "author-compare",
+      "kind": "error_path",
+      "args": [
+        "author-compare",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: author-compare needs exactly two publications; got 1\n"
+    },
+    {
+      "command": "categories browse",
+      "kind": "help",
+      "args": [
+        "categories",
+        "browse",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List publications in a category\n\nUsage:\n  substack-pp-cli categories browse <id> [flags]\n\nExamples:\n  substack-pp-cli categories browse 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help          help for browse\n      --page string   Result page (0-indexed) (default \"0\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "categories browse",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "categories browse",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "categories browse",
+      "kind": "error_path",
+      "args": [
+        "categories",
+        "browse",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /api/v1/category/public/__printing_press_invalid__/all returned HTTP 400: {\"errors\":[{\"location\":\"params\",\"param\":\"id\",\"value\":\"__printing_press_invalid__\",\"msg\":\"Invalid value\"}]}\n"
+    },
+    {
+      "command": "categories list",
+      "kind": "help",
+      "args": [
+        "categories",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List all Substack categories\n\nUsage:\n  substack-pp-cli categories list [flags]\n\nExamples:\n  substack-pp-cli categories list\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "categories list",
+      "kind": "happy_path",
+      "args": [
+        "categories",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"active\":true,\"canonical_name\":\"culture\",\"created_at\":\"2020-04-23T02:44:52.580Z\",\"deprecated\":false,\"emoji\":\"\ud83c\udfad\ufe0f\",\"id\":96,\"leaderboard_description\":\"A full list of the top 25 culture newsletters and podcasts on Substack. Read about the latest pop culture moments, style, movies, music and beyond, and how culture impacts the wider world.\",\"name\":\"<redacted>\",\"parent_tag_id\":null,\"rank\":0,\"slug\":\"culture\",\"subcategories\":[{\"active\":false,\"canonical_name\":\"video games\",\"created_at\":\"2025-02-26T19:46:05.414Z\",\"deprecated\":false,\"emoji\":null,\"id\":76981,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":9,\"slug\":\"video-games\",\"updated_at\":\"2025-02-26T19:46:05.414Z\"},{\"active\":false,\"canonical_name\":\"traditions & customs\",\"created_at\":\"2024-06-24T13:06:59.750Z\",\"deprecated\":false,\"emoji\":null,\"id\":76786,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":6,\"slug\":\"traditions-customs\",\"updated_at\":\"2024-06-24T13:06:59.750Z\"},{\"active\":false,\"canonical_name\":\"cultural commentary\",\"created_at\":\"2024-06-24T13:06:59.722Z\",\"deprecated\":false,\"emoji\":null,\"id\":76780,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":0,\"slug\":\"cultural-commentary\",\"updated_at\":\"2024-06-24T13:06:59.722Z\"},{\"active\":false,\"canonical_name\":\"cultural events & festivals\",\"created_at\":\"2024-06-24T13:06:59.726Z\",\"deprecated\":false,\"emoji\":null,\"id\":76781,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":1,\"slug\":\"cultural-events-festivals\",\"updated_at\":\"2024-06-24T13:06:59.726Z\"},{\"active\":false,\"canonical_name\":\"pop culture\",\"created_at\":\"2024-06-24T13:06:59.735Z\",\"deprecated\":false,\"emoji\":null,\"id\":76783,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":3,\"slug\":\"pop-culture\",\"updated_at\":\"2024-06-24T13:06:59.735Z\"},{\"active\":false,\"canonical_name\":\"social issues\",\"created_at\":\"2024-06-24T13:06:59.740Z\",\"deprecated\":false,\"emoji\":null,\"id\":76784,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":4,\"slug\":\"social-issues\",\"updated_at\":\"2024-06-24T13:06:59.740Z\"}],\"updated_at\":\"2020-04-23T02:44:52.580Z\"},{\"active\":true,\"canonical_name\":\"technology\",\"created_at\":\"2020-04-22T23:22:40.088Z\",\"deprecated\":false,\"emoji\":\"\ud83d\udd79\",\"id\":4,\"leaderboard_description\":\"A full list of the top 25 technology newsletters and podcasts on Substack. Deep dives into all the latest technology, trends, products and startups which are shaping the modern world.\",\"name\":\"<redacted>\",\"parent_tag_id\":null,\"rank\":1,\"slug\":\"technology\",\"subcategories\":[{\"active\":false,\"canonical_name\":\"emerging technologies\",\"created_at\":\"2024-06-24T13:07:00.833Z\",\"deprecated\":false,\"emoji\":null,\"id\":76966,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":2,\"slug\":\"emerging-technologies\",\"updated_at\":\"2024-06-24T13:07:00.833Z\"},{\"active\":false,\"canonical_name\":\"gadgets & devices\",\"created_at\":\"2024-06-24T13:07:00.838Z\",\"deprecated\":false,\"emoji\":null,\"id\":76967,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":3,\"slug\":\"gadgets-devices\",\"updated_at\":\"2024-06-24T13:07:00.838Z\"},{\"active\":false,\"canonical_name\":\"internet & social media\",\"created_at\":\"2024-06-24T13:07:00.843Z\",\"deprecated\":false,\"emoji\":null,\"id\":76968,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":4,\"slug\":\"internet-social-media\",\"updated_at\":\"2024-06-24T13:07:00.843Z\"},{\"active\":false,\"canonical_name\":\"cybersecurity\",\"created_at\":\"2024-06-24T13:07:00.829Z\",\"deprecated\":false,\"emoji\":null,\"id\":76965,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":1,\"slug\":\"cybersecurity\",\"updated_at\":\"2024-06-24T13:07:00.829Z\"},{\"active\":false,\"canonical_name\":\"artificial intelligence & robotics\",\"created_at\":\"2024-06-24T13:07:00.823Z\",\"deprecated\":false,\"emoji\":null,\"id\":76964,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":0,\"slug\":\"artificial-intelligence-robotics\",\"updated_at\":\"2024-06-24T13:07:00.823Z\"},{\"active\":false,\"canon\u2026[truncated]"
+    },
+    {
+      "command": "categories list",
+      "kind": "json_fidelity",
+      "args": [
+        "categories",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"active\":true,\"canonical_name\":\"culture\",\"created_at\":\"2020-04-23T02:44:52.580Z\",\"deprecated\":false,\"emoji\":\"\ud83c\udfad\ufe0f\",\"id\":96,\"leaderboard_description\":\"A full list of the top 25 culture newsletters and podcasts on Substack. Read about the latest pop culture moments, style, movies, music and beyond, and how culture impacts the wider world.\",\"name\":\"<redacted>\",\"parent_tag_id\":null,\"rank\":0,\"slug\":\"culture\",\"subcategories\":[{\"active\":false,\"canonical_name\":\"video games\",\"created_at\":\"2025-02-26T19:46:05.414Z\",\"deprecated\":false,\"emoji\":null,\"id\":76981,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":9,\"slug\":\"video-games\",\"updated_at\":\"2025-02-26T19:46:05.414Z\"},{\"active\":false,\"canonical_name\":\"traditions & customs\",\"created_at\":\"2024-06-24T13:06:59.750Z\",\"deprecated\":false,\"emoji\":null,\"id\":76786,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":6,\"slug\":\"traditions-customs\",\"updated_at\":\"2024-06-24T13:06:59.750Z\"},{\"active\":false,\"canonical_name\":\"cultural commentary\",\"created_at\":\"2024-06-24T13:06:59.722Z\",\"deprecated\":false,\"emoji\":null,\"id\":76780,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":0,\"slug\":\"cultural-commentary\",\"updated_at\":\"2024-06-24T13:06:59.722Z\"},{\"active\":false,\"canonical_name\":\"cultural events & festivals\",\"created_at\":\"2024-06-24T13:06:59.726Z\",\"deprecated\":false,\"emoji\":null,\"id\":76781,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":1,\"slug\":\"cultural-events-festivals\",\"updated_at\":\"2024-06-24T13:06:59.726Z\"},{\"active\":false,\"canonical_name\":\"pop culture\",\"created_at\":\"2024-06-24T13:06:59.735Z\",\"deprecated\":false,\"emoji\":null,\"id\":76783,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":3,\"slug\":\"pop-culture\",\"updated_at\":\"2024-06-24T13:06:59.735Z\"},{\"active\":false,\"canonical_name\":\"social issues\",\"created_at\":\"2024-06-24T13:06:59.740Z\",\"deprecated\":false,\"emoji\":null,\"id\":76784,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":96,\"rank\":4,\"slug\":\"social-issues\",\"updated_at\":\"2024-06-24T13:06:59.740Z\"}],\"updated_at\":\"2020-04-23T02:44:52.580Z\"},{\"active\":true,\"canonical_name\":\"technology\",\"created_at\":\"2020-04-22T23:22:40.088Z\",\"deprecated\":false,\"emoji\":\"\ud83d\udd79\",\"id\":4,\"leaderboard_description\":\"A full list of the top 25 technology newsletters and podcasts on Substack. Deep dives into all the latest technology, trends, products and startups which are shaping the modern world.\",\"name\":\"<redacted>\",\"parent_tag_id\":null,\"rank\":1,\"slug\":\"technology\",\"subcategories\":[{\"active\":false,\"canonical_name\":\"emerging technologies\",\"created_at\":\"2024-06-24T13:07:00.833Z\",\"deprecated\":false,\"emoji\":null,\"id\":76966,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":2,\"slug\":\"emerging-technologies\",\"updated_at\":\"2024-06-24T13:07:00.833Z\"},{\"active\":false,\"canonical_name\":\"gadgets & devices\",\"created_at\":\"2024-06-24T13:07:00.838Z\",\"deprecated\":false,\"emoji\":null,\"id\":76967,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":3,\"slug\":\"gadgets-devices\",\"updated_at\":\"2024-06-24T13:07:00.838Z\"},{\"active\":false,\"canonical_name\":\"internet & social media\",\"created_at\":\"2024-06-24T13:07:00.843Z\",\"deprecated\":false,\"emoji\":null,\"id\":76968,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":4,\"slug\":\"internet-social-media\",\"updated_at\":\"2024-06-24T13:07:00.843Z\"},{\"active\":false,\"canonical_name\":\"cybersecurity\",\"created_at\":\"2024-06-24T13:07:00.829Z\",\"deprecated\":false,\"emoji\":null,\"id\":76965,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":1,\"slug\":\"cybersecurity\",\"updated_at\":\"2024-06-24T13:07:00.829Z\"},{\"active\":false,\"canonical_name\":\"artificial intelligence & robotics\",\"created_at\":\"2024-06-24T13:07:00.823Z\",\"deprecated\":false,\"emoji\":null,\"id\":76964,\"leaderboard_description\":null,\"name\":\"<redacted>\",\"parent_tag_id\":4,\"rank\":0,\"slug\":\"artificial-intelligence-robotics\",\"updated_at\":\"2024-06-24T13:07:00.823Z\"},{\"active\":false,\"canon\u2026[truncated]"
+    },
+    {
+      "command": "categories list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "digest",
+      "kind": "help",
+      "args": [
+        "digest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Summarize what's new across every publication in your local corpus within a\ntime window, grouped by publication and ordered by recency.\n\nReads only the local corpus built by 'substack-pp-cli archive' \u2014 it never hits\nthe network \u2014 so it is a \"what did I miss across my newsletters\" briefing over\nexactly what you have mirrored. Posts without a parseable date are omitted from\nthe window.\n\nUsage:\n  substack-pp-cli digest [flags]\n\nExamples:\n  substack-pp-cli digest --since 7d\n\nFlags:\n  -h, --help           help for digest\n      --limit int      cap the total number of posts shown (0 = no cap)\n      --since string   time window to include (e.g. 7d, 24h, 2w) (default \"7d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "digest",
+      "kind": "happy_path",
+      "args": [
+        "digest",
+        "--since",
+        "7d"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"cutoff\": \"2026-06-30T15:27:07Z\",\n  \"publications\": [],\n  \"since\": \"7d\",\n  \"window\": \"168h0m0s\"\n}\n"
+    },
+    {
+      "command": "digest",
+      "kind": "json_fidelity",
+      "args": [
+        "digest",
+        "--since",
+        "7d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"cutoff\": \"2026-06-30T15:27:07Z\",\n  \"publications\": [],\n  \"since\": \"7d\",\n  \"window\": \"168h0m0s\"\n}\n"
+    },
+    {
+      "command": "digest",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  substack-pp-cli doctor [flags]\n\nExamples:\n  substack-pp-cli doctor\n  substack-pp-cli doctor --json\n  substack-pp-cli doctor --fail-on warn\n  substack-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.config/substack-pp-cli/config.toml\n  base_url: https://substack.com\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.local/share/substack-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 380928\n    stale_after: 6h0m0s\n    resources:\n      - categories: 32 rows, 0s\n  Paths:\n    config: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.config/substack-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.local/share/substack-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.local/state/substack-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.cache/substack-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://substack.com\",\n  \"cache\": {\n    \"db_bytes\": 380928,\n    \"db_path\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.local/share/substack-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-07-07T15:27:06Z\",\n        \"rows\": 32,\n        \"staleness\": \"0s\",\n        \"type\": \"categories\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.config/substack-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.cache/substack-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.config/substack-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.local/share/substack-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.local/state/substack-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  substack-pp-cli feedback list [flags]\n\nExamples:\n  substack-pp-cli feedback list\n  substack-pp-cli feedback list --limit 5\n  substack-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  substack-pp-cli profile delete <name> [flags]\n\nExamples:\n  substack-pp-cli profile delete my-defaults --yes\n  substack-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  substack-pp-cli profile list [flags]\n\nExamples:\n  substack-pp-cli profile list\n  substack-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under <name>. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  substack-pp-cli profile save <name> [--<flag> <value> ...] [flags]\n\nExamples:\n  substack-pp-cli profile save my-defaults --json --compact\n  substack-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  substack-pp-cli profile show <name> [flags]\n\nExamples:\n  substack-pp-cli profile show my-defaults\n  substack-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  substack-pp-cli profile use <name> [flags]\n\nExamples:\n  substack-pp-cli profile use my-defaults\n  substack-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "publications",
+      "kind": "help",
+      "args": [
+        "publications",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Substack publications by name (best-effort; may return few results anonymously)\n\nUsage:\n  substack-pp-cli publications <query> [flags]\n\nExamples:\n  substack-pp-cli publications example-value\n\nFlags:\n  -h, --help          help for publications\n      --page string   Result page (0-indexed) (default \"0\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "publications",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [publications] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "publications",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [publications] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "publications",
+      "kind": "error_path",
+      "args": [
+        "publications",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "read",
+      "kind": "help",
+      "args": [
+        "read",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Read a single Substack post's full text.\n\nFree posts (audience \"everyone\") are keyless \u2014 zero setup. Paid posts you\nalready subscribe to unlock with your own substack.sid session cookie\n(SUBSTACK_SESSION env, or a JSON cookie file in the config dir); this reads only\nwhat you are entitled to and is never required for free content.\n\nAccepts any Substack URL shape, or the bare \"<pub>/<slug>\" form:\n  substack-pp-cli read astralcodexten/open-thread-441\n  substack-pp-cli read https://uxmentor.substack.com/p/<slug>\n  substack-pp-cli read https://creatoreconomy.so/p/<slug>\n  substack-pp-cli read https://substack.com/home/post/p-<id>\n\nWhen a paid post can't be unlocked, the output is honest about it: you get the\npublic preview plus a clear \"preview only \u2014 not entitled\" signal, never a\nsilent downgrade.\n\nUsage:\n  substack-pp-cli read <post> [flags]\n\nExamples:\n  substack-pp-cli read astralcodexten/open-thread-441\n\nFlags:\n  -h, --help   help for read\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "read",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [read] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "read",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [read] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "read",
+      "kind": "error_path",
+      "args": [
+        "read",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: no post slug in \"__printing_press_invalid__\"; use <pub>/<slug> or <pub>.substack.com/p/<slug>\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  substack-pp-cli search <query> [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  substack-pp-cli search \"error timeout\"\n\n  # Force local search only\n  substack-pp-cli search \"status\" --data-source local\n  # Search a specific resource type locally\n  substack-pp-cli search \"status\" --type categories --data-source local\n  # JSON output for piping\n  substack-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "sql",
+      "kind": "help",
+      "args": [
+        "sql",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Execute a single read-only SELECT/WITH statement against the local SQLite\ncorpus populated by 'substack-pp-cli archive'. Read-only is enforced two ways:\nthe query is gated to a single SELECT or WITH statement (comment- and\nmulti-statement-injection resistant), and the store is opened mode=ro so the\ndriver rejects any write that slips past the parser.\n\nArchived posts live in the 'posts' resource type:\n  substack-pp-cli sql \"SELECT COUNT(*) AS n FROM resources WHERE resource_type='posts'\"\n  substack-pp-cli sql \"SELECT json_extract(data,'$.audience') AS audience, COUNT(*) AS n FROM resources WHERE resource_type='posts' GROUP BY audience\"\n\nUsage:\n  substack-pp-cli sql <query> [flags]\n\nExamples:\n  substack-pp-cli sql \"SELECT json_extract(data,'$.audience') AS audience, COUNT(*) FROM resources WHERE resource_type='posts' GROUP BY audience\"\n\nFlags:\n  -h, --help   help for sql\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sql",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "error_path",
+      "args": [
+        "sql",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: only read-only SELECT or WITH queries are allowed\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes & warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  substack-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  substack-pp-cli sync\n\n  # Sync specific resources only\n  substack-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  substack-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  substack-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  substack-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  substack-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --no-prune                     Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) \u2014 overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n   \u2026[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"categories\"}\n{\"event\":\"sync_warning\",\"resource\":\"categories\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"categories\",\"fetched\":32}\n{\"event\":\"sync_complete\",\"resource\":\"categories\",\"total\":32,\"duration_ms\":178}\n{\"event\":\"sync_summary\",\"total_records\":32,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":178}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"categories\"}\n{\"event\":\"sync_warning\",\"resource\":\"categories\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"categories\",\"fetched\":32}\n{\"event\":\"sync_complete\",\"resource\":\"categories\",\"total\":32,\"duration_ms\":193}\n{\"event\":\"sync_summary\",\"total_records\":32,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":193}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  substack-pp-cli which [query] [flags]\n\nExamples:\n  substack-pp-cli which \"stale tickets\"\n  substack-pp-cli which \"bottleneck\"\n  substack-pp-cli which --limit 1 \"send message\"\n  substack-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  substack-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  substack-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  substack-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"categories\"}\n{\"event\":\"sync_warning\",\"resource\":\"categories\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"categories\",\"fetched\":32}\n{\"event\":\"sync_complete\",\"resource\":\"categories\",\"total\":32,\"duration_ms\":182}\nArchived 32 items across 1 resources to /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.local/share/substack-pp-cli/data.db\n  categories: 32 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.local/share/substack-pp-cli/data.db\",\n  \"timestamp\": \"2026-07-07T15:27:09Z\",\n  \"total_items\": 32\n}\n{\"event\":\"sync_start\",\"resource\":\"categories\"}\n{\"event\":\"sync_warning\",\"resource\":\"categories\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"categories\",\"fetched\":32}\n{\"event\":\"sync_complete\",\"resource\":\"categories\",\"total\":32,\"duration_ms\":196}\n  categories: 32 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  substack-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  substack-pp-cli workflow status\n\n  # Show status as JSON\n  substack-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  categories                     32 items\n\n  Total: 32 items\n  Store: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-4145515660/.local/share/substack-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"categories\": 32\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-07T15:27:06.522431Z"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "substack-tier1-session-cookie",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260706-pp-substack-d6575d7d",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Hand-added Tier-1 own-session cookie path: substack.sid precedence chain, value masking, 0600 hygiene, and the cookie-only-on-*.substack.com invariant enforced in the client.",
+  "reason": "Reading paid posts the user already subscribes to requires their own Substack session cookie (substack.sid) — an optional, never-required, never-redistributed credential (same posture as Medium Reader Tier 1). The generator emits no credential flow, so this is hand-built in internal/substack/session.go: precedence SUBSTACK_SESSION env > config-dir cookie.json > SUBSTACK_COOKIE_FILE env; the value is masked in every output path; any persisted copy is written 0600 under a 0700 parent with a loose-perms warning (POSIX-gated). internal/substack/client.go self-enforces that the cookie is only ever attached on *.substack.com hosts (the universal Tier-1 path is substack.com/api/v1/posts/by-id/<id> authed, where substack.sid is first-party — a .substack.com cookie is not first-party on a vanity custom domain). This is a printed-CLI concern for the keyless fork's own credential path, not a generator defect.",
+  "files": [
+    "internal/substack/session.go",
+    "internal/substack/client.go"
+  ],
+  "validated_outcome": "Hermetic unit tests for the precedence chain, masking, and cookie-host invariant; live-verified one substack.sid unlocked two different paid subscriptions (subdomain + custom-domain) via the by-id endpoint. Cookie values never logged, printed, or committed."
+}

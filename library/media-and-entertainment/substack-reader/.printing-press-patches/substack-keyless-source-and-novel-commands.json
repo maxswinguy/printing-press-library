@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "substack-keyless-source-and-novel-commands",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260706-pp-substack-d6575d7d",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Hand-built keyless Substack HTTP source layer and the four novel reader commands (archive, read, digest, author-compare) plus their store extras, on top of the generated chassis.",
+  "reason": "The generated chassis wires the framework command surface but re-stubs every novel command as a 27-line skeleton and provides no Substack transport. The keyless reader is implemented by hand: internal/substack/client.go fetches Substack's internal /api/v1 endpoints directly (net/http, no key, no Cloudflare/JA3 gate), following the per-publication host / custom-domain 301; internal/substack/resolver.go unifies the four post-URL shapes (handle, bare host, full URL, reader-app by-id) into a single resolver; archive.go mirrors a publication's posts into local SQLite; read.go fetches a single post with a full-vs-preview detector; digest.go time-windows the local corpus; author_compare.go joins two archived publications; internal/store/extras.go adds the corpus helpers (including recordArchiveSyncState, which calls the generated store's SaveSyncState so framework search/digest trust the corpus — playbook meta-pattern 8). None of these files carry a generator DO-NOT-EDIT header; a reprint would re-stub them.",
+  "files": [
+    "internal/substack/client.go",
+    "internal/substack/resolver.go",
+    "internal/cli/archive.go",
+    "internal/cli/read.go",
+    "internal/cli/digest.go",
+    "internal/cli/author_compare.go",
+    "internal/store/extras.go"
+  ],
+  "validated_outcome": "go build/vet/test green in the library layout; live matrix verified archive+read+search+digest+author-compare against free subdomain and custom-domain publications (astralcodexten, blog.bytebytego.com)."
+}

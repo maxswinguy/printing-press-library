@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "substack-resolve-template-stub",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260706-pp-substack-d6575d7d",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Regen-safe no-op stub satisfying the generator's undefined resolveSubstackPublicationIDTemplate reference, emitted because the API is named after a reserved scaffold noun.",
+  "reason": "Naming the API 'substack' makes the generator emit calls to an undefined resolveSubstackPublicationIDTemplate — a drafts-scaffolding path keyed on the API name that has no matching template, so the generated tree does not compile. internal/cli/substack_resolve.go provides a small no-op stub that satisfies the reference without editing any generated DO-NOT-EDIT file, keeping the fix regen-safe. Candidate upstream generator report (resolve<Name>Template undefined when --name matches a reserved noun).",
+  "files": [
+    "internal/cli/substack_resolve.go"
+  ],
+  "validated_outcome": "go build ./... green with the stub in place; removing it reproduces the undefined-symbol build error."
+}

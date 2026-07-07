@@ -1,0 +1,20 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "substack-pp-cli"
+display_name = "Substack Reader"
+description = "Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/substack-pp-cli/cookie.json"
+
+[sync]
+default = false
+
+# Keyless ($0 / no-key): there is no API credential to sync. The only optional
+# credential is the user's OWN Substack session cookie (substack.sid, Tier 1),
+# supplied at runtime via SUBSTACK_SESSION / SUBSTACK_COOKIE_FILE / the config
+# cookie file and never stored as a managed secret. Nothing here is synced by
+# default.
+[sync.keys]
