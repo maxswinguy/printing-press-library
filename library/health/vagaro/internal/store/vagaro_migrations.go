@@ -92,12 +92,48 @@ var vagaroTablesDDL = []string{
 func (s *Store) EnsureVagaroTables(ctx context.Context) error {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
+	// Migration: watch_baselines gained a provider column as part of its
+	// primary key. CREATE TABLE IF NOT EXISTS below is a no-op on databases
+	// created before that change, leaving the old provider-less schema in
+	// place so provider-scoped reads/writes fail. Baselines are a regenerable
+	// cache (the next watch run re-establishes them), so drop the stale table
+	// and let the DDL loop recreate it with the current key shape.
+	if err := s.migrateWatchBaselinesProvider(ctx); err != nil {
+		return fmt.Errorf("migrating watch_baselines: %w", err)
+	}
 	for _, ddl := range vagaroTablesDDL {
 		if _, err := s.db.ExecContext(ctx, ddl); err != nil {
 			return fmt.Errorf("creating vagaro tables: %w", err)
 		}
 	}
 	return nil
+}
+
+// migrateWatchBaselinesProvider drops a pre-provider watch_baselines table so
+// EnsureVagaroTables can rebuild it with the provider-scoped primary key. It is
+// idempotent: a missing table or an already-current table is left untouched.
+func (s *Store) migrateWatchBaselinesProvider(ctx context.Context) error {
+	var name string
+	err := s.db.QueryRowContext(ctx,
+		`SELECT name FROM sqlite_master WHERE type='table' AND name='watch_baselines'`,
+	).Scan(&name)
+	if err == sql.ErrNoRows {
+		return nil // table doesn't exist yet; the DDL loop will create it fresh
+	}
+	if err != nil {
+		return err
+	}
+	var providerCols int
+	if err := s.db.QueryRowContext(ctx,
+		`SELECT COUNT(*) FROM pragma_table_info('watch_baselines') WHERE name='provider'`,
+	).Scan(&providerCols); err != nil {
+		return err
+	}
+	if providerCols > 0 {
+		return nil // already migrated
+	}
+	_, err = s.db.ExecContext(ctx, `DROP TABLE watch_baselines`)
+	return err
 }
 
 func nowUTC() string { return time.Now().UTC().Format(time.RFC3339) }

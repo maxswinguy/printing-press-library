@@ -93,3 +93,40 @@ func TestUpsertServicesProvidersReviews(t *testing.T) {
 		`SELECT title FROM services WHERE business_id=? AND service_id=?`, "93458", "9433955").Scan(&title))
 	assert.Equal(t, "Men's Haircut (updated)", title)
 }
+
+// TestMigrateWatchBaselinesProvider verifies that a database created before the
+// provider column existed is migrated so provider-scoped baselines work after
+// an upgrade (regression for the "Baseline Schema Missing Migration" finding).
+func TestMigrateWatchBaselinesProvider(t *testing.T) {
+	ctx := context.Background()
+	s := newVagaroTestStore(t)
+
+	// Simulate a pre-provider database: drop the current table and recreate the
+	// old provider-less schema with a row in it.
+	_, err := s.db.ExecContext(ctx, `DROP TABLE watch_baselines`)
+	require.NoError(t, err)
+	_, err = s.db.ExecContext(ctx, `CREATE TABLE watch_baselines (
+		slug TEXT NOT NULL, service_id TEXT NOT NULL,
+		next_available TEXT, before_target TEXT, recorded_at TEXT NOT NULL,
+		PRIMARY KEY (slug, service_id))`)
+	require.NoError(t, err)
+	_, err = s.db.ExecContext(ctx,
+		`INSERT INTO watch_baselines VALUES ('old','1','2026-01-01T00:00:00Z','','2026-01-01T00:00:00Z')`)
+	require.NoError(t, err)
+
+	// Re-running EnsureVagaroTables must migrate the stale table.
+	require.NoError(t, s.EnsureVagaroTables(ctx))
+
+	// The provider column now exists and provider-scoped writes/reads work.
+	require.NoError(t, s.UpsertWatchBaseline(ctx, "centralbarber", "34098477", "43931725", "2026-07-25T11:00:00Z", ""))
+	pb, found, err := s.GetWatchBaseline(ctx, "centralbarber", "34098477", "43931725")
+	require.NoError(t, err)
+	require.True(t, found)
+	assert.Equal(t, "2026-07-25T11:00:00Z", pb.NextAvailable)
+
+	// Idempotent: a second run over the now-current table is a no-op.
+	require.NoError(t, s.EnsureVagaroTables(ctx))
+	_, found, err = s.GetWatchBaseline(ctx, "centralbarber", "34098477", "43931725")
+	require.NoError(t, err)
+	assert.True(t, found)
+}
