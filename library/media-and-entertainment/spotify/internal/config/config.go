@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
 )
 
 type Config struct {
@@ -47,6 +47,11 @@ type Config struct {
 	envOverrides   map[string]bool `toml:"-"`
 	fileConfig     *Config         `toml:"-"`
 	SpotifyOauth20 string          `toml:"oauth_2_0"`
+	// PATCH (spotify-legacy-credential-key-compat):
+	// The pre-4.27 print of this CLI stored the direct bearer under
+	// `web_oauth_2_0` (display-name-derived). Read it so upgraders' saved
+	// configs keep authenticating; Load promotes it into SpotifyOauth20.
+	LegacySpotifyWebOauth20 string `toml:"web_oauth_2_0,omitempty"`
 	// TemplateVars holds the runtime values for {placeholder} markers in
 	// BaseURL and the request path (e.g. Shopify's {shop}/{version}). Populated
 	// at Load() time from env vars; consumed by the client's buildURL helper.
@@ -120,12 +125,30 @@ func Load(configPath string) (*Config, error) {
 
 	cfg.snapshotFileConfig()
 
+	// PATCH (spotify-legacy-credential-key-compat):
+	// Promote a bearer saved by the pre-4.27 print (config key
+	// `web_oauth_2_0`) into the current field before env overrides run, so
+	// the precedence order is unchanged: new key > legacy key, env > file.
+	if cfg.SpotifyOauth20 == "" && cfg.LegacySpotifyWebOauth20 != "" {
+		cfg.SpotifyOauth20 = cfg.LegacySpotifyWebOauth20
+	}
+
 	// Env var overrides
 	if v := os.Getenv("SPOTIFY_OAUTH_2_0"); v != "" {
 		cfg.SpotifyOauth20 = v
 		cfg.markEnvOverride("SpotifyOauth20")
 		cfg.AuthSource = "env:SPOTIFY_OAUTH_2_0"
 		cfg.CredentialSource = "env:SPOTIFY_OAUTH_2_0"
+	}
+	// PATCH (spotify-legacy-credential-key-compat):
+	// The pre-4.27 print's env var was display-name-derived
+	// (SPOTIFY_WEB_OAUTH_2_0). Honor it when the current name is unset so
+	// upgraders' shells keep authenticating.
+	if v := os.Getenv("SPOTIFY_WEB_OAUTH_2_0"); v != "" && os.Getenv("SPOTIFY_OAUTH_2_0") == "" {
+		cfg.SpotifyOauth20 = v
+		cfg.markEnvOverride("SpotifyOauth20")
+		cfg.AuthSource = "env:SPOTIFY_WEB_OAUTH_2_0"
+		cfg.CredentialSource = "env:SPOTIFY_WEB_OAUTH_2_0"
 	}
 	// Label config-file-derived credentials so doctor can distinguish
 	// "credentials persisted on disk" from "no credentials at all" — without
