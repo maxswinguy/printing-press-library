@@ -16194,6 +16194,58 @@
       }
     },
     {
+      "name": "ticketdata",
+      "category": "media-and-entertainment",
+      "api": "TicketData",
+      "description": "Every TicketData price signal for any event, performer, or venue, plus a local price-history store for trend math, drift alerts, and cross-event comparisons no ticket tool ships.",
+      "search_terms": [
+        "ticketdata",
+        "ticketdata-pp-cli",
+        "Every TicketData price signal for any event, performer, or venue, plus a local price-history store for trend math, drift alerts, and cross-event comparisons no ticket tool ships.",
+        "Watchlist management",
+        "watch",
+        "Track a set of events locally so one sync re-fetches all their current prices.",
+        "Watchlist price board",
+        "board",
+        "One sortable table of every watched event: get-in price, N-day change, forecast direction, and where today sits in its own history.",
+        "Drift and target alerts",
+        "drift",
+        "Diff the two most recent snapshots per watched event, flag floors that moved past a threshold, and fire price-target hits.",
+        "History stats and best time to buy",
+        "stats",
+        "Historical low/high, median, current percentile, volatility, and the weekday the floor is typically lowest, from the local price series.",
+        "Cross-event comparison",
+        "compare",
+        "Rank multiple watched events, or all of one performer's watched events, by get-in price and percent change.",
+        "Best-zone opportunity finder",
+        "zones",
+        "Rank an event's zones by current get-in price and by each zone's drop versus its own history to surface the underpriced section.",
+        "Offline multi-result search",
+        "search",
+        "Local full-text search across synced events, performers, and venues, returning multiple matches."
+      ],
+      "path": "library/media-and-entertainment/ticketdata",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "creator": {
+        "handle": "mvanhorn",
+        "name": "Matt Van Horn"
+      },
+      "mcp": {
+        "binary": "ticketdata-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 7,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "ticketmaster",
       "category": "media-and-entertainment",
       "api": "Ticketmaster",
