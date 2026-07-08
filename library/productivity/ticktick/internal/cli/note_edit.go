@@ -126,9 +126,15 @@ func locateNoteTask(ctx context.Context, c *client.Client, projectID, dateSpec s
 		if rawStr(t["projectId"]) != projectID {
 			continue
 		}
-		if strings.HasPrefix(rawStr(t["startDate"]), target) {
-			matches = append(matches, t)
+		if !strings.HasPrefix(rawStr(t["startDate"]), target) {
+			continue
 		}
+		// Only note-kind tasks are eligible: a regular task or checklist with
+		// today's startDate must never be selected as "the daily note".
+		if !isNoteKind(rawStr(t["kind"])) {
+			continue
+		}
+		matches = append(matches, t)
 	}
 	if len(matches) == 0 {
 		return "", notFoundErr(fmt.Errorf("no note task in project %s with start date %s", projectID, target))
@@ -160,11 +166,31 @@ func editNoteContent(ctx context.Context, c *client.Client, taskID, projectID, a
 		return nil, apiErr(fmt.Errorf("parsing task: %w", err))
 	}
 
+	// Central kind guard: every write path (date lookup, --task-id direct)
+	// funnels through here, so a non-note target can never be overwritten.
+	if kind := rawStr(task["kind"]); !isNoteKind(kind) {
+		return nil, usageErr(fmt.Errorf("task %s has kind %q, not a note; refusing to edit — use 'tasks batch' for generic task updates", taskID, kind))
+	}
+
 	content := rawStr(task["content"])
 	if setContent != "" {
 		content = setContent
 	}
 	if appendText != "" {
+		// Idempotent append: if the content already ends with the append text
+		// (e.g. a retry after the server applied the update but returned a
+		// per-item error), do not append it again.
+		if strings.HasSuffix(strings.TrimRight(content, "\n"), appendText) {
+			return map[string]any{
+				"updated":         false,
+				"already_applied": true,
+				"task_id":         taskID,
+				"project_id":      projectID,
+				"previous_etag":   rawStr(task["etag"]),
+				"new_etag":        rawStr(task["etag"]),
+				"content_bytes":   len(content),
+			}, nil
+		}
 		if content != "" && !strings.HasSuffix(content, "\n") {
 			content += "\n"
 		}
@@ -235,4 +261,11 @@ func rawStr(r json.RawMessage) string {
 		return s
 	}
 	return string(r)
+}
+
+// isNoteKind reports whether a task kind is editable as a note. Daily notes
+// are TEXT; legacy notes may report NOTE. Everything else (CHECKLIST, "" for
+// plain tasks) is refused by the note-edit write path.
+func isNoteKind(kind string) bool {
+	return kind == "TEXT" || kind == "NOTE"
 }
