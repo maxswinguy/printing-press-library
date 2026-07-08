@@ -4,7 +4,7 @@
   "printing_press_version": "4.4.0",
   "api_name": "marianatek",
   "display_name": "Mariana Tek",
-  "description": "Search Mariana Tek studio schedules, book classes, watch cancellations, and sync reservations into an offline class catalog.",
+  "description": "Every Mariana Tek booking feature, plus multi-tenant search, cancellation watching, and an offline class catalog no other tool has. Mariana Tek powers hundreds of boutique-fitness, yoga, sauna, and wellness studios via per-brand subdomains; this CLI works against any of them.",
   "cli_name": "marianatek-pp-cli",
   "creator": {
     "handle": "salmonumbrella",
@@ -55,6 +55,5 @@
   ],
   "printer": "salmonumbrella",
   "printer_name": "salmonumbrella",
-  "category": "productivity",
-  "description": "Every Mariana Tek booking feature, plus multi-tenant search, cancellation watching, and an offline class catalog no..."
+  "category": "productivity"
 }

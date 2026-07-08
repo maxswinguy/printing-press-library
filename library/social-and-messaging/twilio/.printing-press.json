@@ -16,7 +16,7 @@
   "run_id": "20260509-120941",
   "catalog_entry": "twilio",
   "category": "social-and-messaging",
-  "description": "Every Twilio Core feature, plus offline message and call history, FTS, and SQL-grade analytics no other Twilio tool...",
+  "description": "Communication APIs for SMS, voice, and messaging",
   "mcp_binary": "twilio-pp-mcp",
   "mcp_tool_count": 197,
   "mcp_ready": "full",

@@ -50,5 +50,5 @@
     }
   ],
   "category": "other",
-  "description": "The OpenAlex API provides access to a comprehensive catalog of scholarly works, authors, sources, institutions,..."
+  "description": "Free scholarly graph API for works, authors, sources, institutions, topics, funders, and citation-aware research intelligence."
 }

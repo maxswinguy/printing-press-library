@@ -52,7 +52,7 @@
     }
   ],
   "printer": "rvdlaar",
-  "description": "Agent-first OpenRouter introspection — terse output for cron and AI agents (--agent and --llm modes), local SQLite...",
+  "description": "Inspect OpenRouter models, providers, credits, activity, and cost attribution with local caching and agent-friendly output.",
   "category": "ai",
   "spec_url": "https://openrouter.ai/openapi.json",
   "printer_name": "Rick van de Laar",
