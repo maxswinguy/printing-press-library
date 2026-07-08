@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
-	"janeapp-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
 )
 
 type Config struct {

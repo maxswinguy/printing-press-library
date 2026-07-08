@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"janeapp-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/store"
 )
 
 // isNilOrEmpty checks whether a JSON search hit is only an empty shell.

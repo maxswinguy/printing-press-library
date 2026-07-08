@@ -15,9 +15,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"janeapp-pp-cli/internal/client"
-	"janeapp-pp-cli/internal/cliutil"
-	"janeapp-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/config"
 )
 
 type rootFlags struct {
@@ -268,7 +268,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newNovelNextOpeningCmd(flags))
 	rootCmd.AddCommand(newNovelWatchCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
-	rootCmd.AddCommand(newAppointmentsPromotedCmd(flags))
+	// Note: the generated appointments endpoint command is intentionally NOT
+	// registered — the hand-built newAppointmentsViewCmd (upcoming/past +
+	// --all-clinics, live per-clinic) owns the top-level `appointments` verb.
 	rootCmd.AddCommand(newDisciplinesPromotedCmd(flags))
 	rootCmd.AddCommand(newLocationsPromotedCmd(flags))
 	rootCmd.AddCommand(newOpeningsPromotedCmd(flags))

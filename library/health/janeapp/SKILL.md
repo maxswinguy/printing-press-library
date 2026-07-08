@@ -87,7 +87,7 @@ These capabilities aren't available in any other tool for this API.
 
 **appointments** — Your own appointments at the clinic (requires a logged-in session).
 
-- `janeapp-pp-cli appointments` — List your upcoming and past appointments for the active profile.
+- `janeapp-pp-cli appointments upcoming` / `janeapp-pp-cli appointments past` — View your upcoming or past appointments (add `--all-clinics` to merge every logged-in clinic). Requires a logged-in session.
 
 **disciplines** — Disciplines (categories of care) offered by the clinic, e.g. Physical Therapy.
 
@@ -116,10 +116,6 @@ This printed CLI owns bounded freshness only for registered store-backed read co
 
 Covered paths:
 
-- `janeapp-pp-cli appointments`
-- `janeapp-pp-cli appointments get`
-- `janeapp-pp-cli appointments list`
-- `janeapp-pp-cli appointments search`
 - `janeapp-pp-cli disciplines`
 - `janeapp-pp-cli disciplines get`
 - `janeapp-pp-cli disciplines list`

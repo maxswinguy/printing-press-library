@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	"janeapp-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/client"
 )
 
 type janeOpening struct {

@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"janeapp-pp-cli/internal/client"
-	"janeapp-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"

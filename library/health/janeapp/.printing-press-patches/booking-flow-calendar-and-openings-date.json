@@ -14,5 +14,5 @@
     "internal/cli/book.go",
     "internal/cli/appointments_view.go"
   ],
-  "validated_outcome": "Booked a real appointment (Fri 2026-08-21 16:00, reservation id 902) at leahkangas.janeapp.com; it appears in appointments upcoming. Availability with date= returns correct future openings matching the web. calendar --out generates valid ICS incl. the new booking; calendar --url returns the /ical/<token> subscribe URL."
+  "validated_outcome": "Booked a real appointment end-to-end via reserve->confirm and confirmed it appears in appointments upcoming. Availability with date= returns correct future openings matching the web. calendar --out generates valid ICS incl. the new booking; calendar --url returns the /ical/<token> subscribe URL."
 }

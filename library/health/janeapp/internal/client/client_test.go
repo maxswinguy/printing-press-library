@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"janeapp-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {

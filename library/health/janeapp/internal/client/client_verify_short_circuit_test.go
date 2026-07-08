@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"janeapp-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/config"
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is

@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"janeapp-pp-cli/internal/cliutil"
-	"janeapp-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/config"
 )
 
 func resetCredentialEnv(t *testing.T) (home, configPath string) {

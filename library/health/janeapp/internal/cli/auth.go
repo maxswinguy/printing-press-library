@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/spf13/cobra"
 	"io"
-	"janeapp-pp-cli/internal/cliutil"
-	"janeapp-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/config"
 	"net/http"
 	"net/url"
 	"os"
@@ -934,23 +934,21 @@ func extractViaPycookiecheat(tool cookieTool, domain, profileDir string) (string
 		}
 	}
 
-	var script string
-	if cookiePath != "" {
-		// Use forward slashes so Python doesn't interpret backslashes as escapes on Windows
-		safePath := filepath.ToSlash(cookiePath)
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s", cookie_file="%s")))`,
-			cleanDomain, safePath,
-		)
-	} else {
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s")))`,
-			cleanDomain,
-		)
-	}
+	// Pass the domain and cookie path as argv rather than interpolating them
+	// into the script source: cookiePath derives from os.UserHomeDir() and the
+	// Chrome profile dir name, either of which can legally contain quotes or
+	// backslashes that would break — or inject into — a Python string literal.
+	const script = `import json, sys
+from pycookiecheat import chrome_cookies
+url = "https://" + sys.argv[1]
+cookie_file = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] else None
+print(json.dumps(chrome_cookies(url, cookie_file=cookie_file)))`
+
+	// Forward slashes keep Windows paths from being read as escapes by pycookiecheat.
+	scriptArgs := []string{"-c", script, cleanDomain, filepath.ToSlash(cookiePath)}
 
 	var out bytes.Buffer
-	cmd := exec.Command(tool.pyBin, append(append([]string{}, tool.pyArgs...), "-c", script)...)
+	cmd := exec.Command(tool.pyBin, append(append([]string{}, tool.pyArgs...), scriptArgs...)...)
 	cmd.Stdout = &out
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {

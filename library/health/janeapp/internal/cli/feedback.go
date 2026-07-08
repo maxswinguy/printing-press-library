@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"janeapp-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
 )
 
 // FeedbackEntry is one line in the local feedback ledger. Every run of

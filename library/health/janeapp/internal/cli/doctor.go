@@ -15,10 +15,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"janeapp-pp-cli/internal/client"
-	"janeapp-pp-cli/internal/cliutil"
-	"janeapp-pp-cli/internal/config"
-	"janeapp-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

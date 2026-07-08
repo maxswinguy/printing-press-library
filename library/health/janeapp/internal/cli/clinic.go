@@ -18,7 +18,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"janeapp-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
 )
 
 // Clinic is one Jane tenant: a clinic's subdomain plus the patient session for

@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	"janeapp-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
 )
 
 // cookieJar wraps an http.CookieJar so writes (server Set-Cookie response

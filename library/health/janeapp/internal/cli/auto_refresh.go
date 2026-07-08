@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"janeapp-pp-cli/internal/cliutil"
-	"janeapp-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/store"
 )
 
 // readCommandResources maps command paths (`cmd.CommandPath()`) to the
@@ -21,10 +21,8 @@ import (
 // Populated from generated syncable resource commands and any custom
 // command-path coverage declared in spec.Cache.Commands.
 var readCommandResources = map[string][]string{
-	"janeapp-pp-cli appointments":        {"appointments"},
-	"janeapp-pp-cli appointments list":   {"appointments"},
-	"janeapp-pp-cli appointments get":    {"appointments"},
-	"janeapp-pp-cli appointments search": {"appointments"},
+	// appointments is served live per-clinic by the hand-built view command
+	// (upcoming/past), not from the store, so it is not auto-refresh covered.
 	"janeapp-pp-cli disciplines":         {"disciplines"},
 	"janeapp-pp-cli disciplines list":    {"disciplines"},
 	"janeapp-pp-cli disciplines get":     {"disciplines"},
