@@ -83,10 +83,14 @@ var (
 	iframeSrcRE     = regexp.MustCompile(`src="([^"]+)"`)
 	// snipSeparatorRE matches @@SNIP@@ only when it stands alone on its own line —
 	// exactly how the export template emits it. Splitting on this instead of the
-	// bare substring means the same token appearing inside a note, quote, or
-	// transcript is NOT mistaken for a snip boundary (which would shift field
-	// parsing and corrupt or drop snips).
+	// bare substring means the token appearing INLINE inside a note, quote, or
+	// transcript is NOT mistaken for a snip boundary.
 	snipSeparatorRE = regexp.MustCompile("(?m)^" + regexp.QuoteMeta(snipSeparator) + "$")
+	// snipChunkStartRE recognizes the start of a real snip chunk: the export always
+	// opens each snip with a snip_<token>=<< field. A post-split chunk that does NOT
+	// start this way is a phantom produced by a standalone @@SNIP@@ line sitting
+	// INSIDE a multiline value, so it is glued back rather than parsed as a snip.
+	snipChunkStartRE = regexp.MustCompile(`\A\s*snip_[a-z_]+=<<`)
 )
 
 func init() {
@@ -227,7 +231,20 @@ func ParseEpisode(episodeID, raw string) (Episode, []Snip) {
 			body = parts[2]
 		}
 	}
-	chunks := snipSeparatorRE.Split(body, -1)
+	// Split on standalone @@SNIP@@ lines, then reattach any chunk that doesn't open
+	// a real snip. That reattach is what makes the parse content-proof: a @@SNIP@@
+	// alone on its own line INSIDE a multiline note/quote/transcript is glued back
+	// (restoring the separator) instead of producing a phantom snip that shifts
+	// field parsing. Every real snip chunk begins with a snip_<token>=<< field.
+	rawChunks := snipSeparatorRE.Split(body, -1)
+	chunks := make([]string, 0, len(rawChunks))
+	for _, c := range rawChunks {
+		if len(chunks) > 0 && !snipChunkStartRE.MatchString(c) {
+			chunks[len(chunks)-1] += snipSeparator + c
+			continue
+		}
+		chunks = append(chunks, c)
+	}
 	head := chunks[0]
 
 	ep := Episode{

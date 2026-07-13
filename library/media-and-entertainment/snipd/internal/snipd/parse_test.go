@@ -205,6 +205,35 @@ func TestParseEpisodeSeparatorInContentNotSplit(t *testing.T) {
 	}
 }
 
+// TestParseEpisodeStandaloneSeparatorInContentNotSplit guards the deeper case: a
+// @@SNIP@@ alone on its OWN line inside a multiline note. The chunk after it does
+// not open a snip field, so it is glued back instead of becoming a phantom snip.
+func TestParseEpisodeStandaloneSeparatorInContentNotSplit(t *testing.T) {
+	md := "" +
+		"episode_title=<<episode_title>>Standalone Test<</episode_title>>\n" +
+		"episode_url=<<episode_url>>https://share.snipd.com/episode/2<</episode_url>>\n" +
+		"@@SNIP@@\n" +
+		"snip_favorite_star=<<snip_favorite_star>><</snip_favorite_star>>\n" +
+		"snip_title=<<snip_title>>One Snip<</snip_title>>\n" +
+		"snip_url=<<snip_url>>https://share.snipd.com/snip/6a0839ae-1111-2222-3333-444455556666<</snip_url>>\n" +
+		"snip_note=<<snip_note>>line one\n@@SNIP@@\nline three<</snip_note>>\n" +
+		"snip_transcript=<<snip_transcript>>full transcript<</snip_transcript>>\n"
+
+	ep, snips := ParseEpisode("22222222-3333-4444-5555-666677778888", md)
+	if ep.SnipCount != 1 {
+		t.Fatalf("snip_count = %d, want 1 (a standalone @@SNIP@@ inside a note split the snip)", ep.SnipCount)
+	}
+	if len(snips) != 1 {
+		t.Fatalf("got %d snips, want 1", len(snips))
+	}
+	if snips[0].Title != "One Snip" {
+		t.Errorf("snip title = %q, want %q", snips[0].Title, "One Snip")
+	}
+	if !contains(snips[0].Note, "line one") || !contains(snips[0].Note, "line three") {
+		t.Errorf("note lost content around the standalone separator: %q", snips[0].Note)
+	}
+}
+
 func TestTemplatesRoundTrip(t *testing.T) {
 	// The rendered form of a token must be parseable by fieldValue.
 	ep := EpisodeTemplate()
