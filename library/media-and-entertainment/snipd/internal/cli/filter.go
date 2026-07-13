@@ -10,9 +10,26 @@ package cli
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
+
+// validateDateFlag rejects a --since/--until value that isn't a date. The flags
+// feed a lexical comparison against episode publish_date (an ISO string), so an
+// unvalidated typo like "zzzz" is a perfectly valid SQL predicate that silently
+// returns an empty or misleading slice instead of an input error.
+func validateDateFlag(name, val string) error {
+	if val == "" {
+		return nil
+	}
+	for _, layout := range []string{"2006-01-02", time.RFC3339, time.RFC3339Nano, "2006-01-02T15:04:05"} {
+		if _, err := time.Parse(layout, val); err == nil {
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid --%s %q: expected a date (2006-01-02) or an RFC3339 timestamp", name, val)
+}
 
 func newNovelFilterCmd(flags *rootFlags) *cobra.Command {
 	var dbPath, show, tag, since, until string
@@ -30,6 +47,12 @@ func newNovelFilterCmd(flags *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
+			}
+			if err := validateDateFlag("since", since); err != nil {
+				return err
+			}
+			if err := validateDateFlag("until", until); err != nil {
+				return err
 			}
 			if dryRunOK(flags) {
 				return nil

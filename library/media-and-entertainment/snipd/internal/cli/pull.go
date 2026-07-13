@@ -39,6 +39,45 @@ type pullResult struct {
 	DB            string `json:"db"`
 }
 
+// fallbackSnipID builds a content-stable synthetic id for a snip that exported
+// without a deep-link UUID. Hashing the full content (not just
+// episode+start+title) keeps a re-pull updating the same row, while stopping two
+// distinct same-start/same-title snips from colliding and silently overwriting
+// each other. A collision now requires every content field to match — i.e. the
+// two rows are genuine duplicates.
+func fallbackSnipID(s snipd.Snip) string {
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(s.EpisodeID + "\x1f" + s.Start + "\x1f" + s.Title +
+		"\x1f" + s.Note + "\x1f" + s.Quote + "\x1f" + s.Transcript))
+	return fmt.Sprintf("%s#%x", s.EpisodeID, h.Sum64())
+}
+
+// tsLater reports whether timestamp a is strictly later than b. When both parse
+// as timestamps it compares the parsed instants; otherwise it falls back to
+// lexical order (e.g. the empty initial cursor, or an unexpected format). This
+// keeps the incremental --updated-after cursor correct even if the API varies
+// timezone offset or fractional-second precision between episodes.
+func tsLater(a, b string) bool {
+	ta, aok := parseSnipTS(a)
+	tb, bok := parseSnipTS(b)
+	if aok && bok {
+		return ta.After(tb)
+	}
+	return a > b
+}
+
+func parseSnipTS(s string) (time.Time, bool) {
+	if s == "" {
+		return time.Time{}, false
+	}
+	for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02T15:04:05", "2006-01-02"} {
+		if t, err := time.Parse(layout, s); err == nil {
+			return t, true
+		}
+	}
+	return time.Time{}, false
+}
+
 func newNovelPullCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var updatedAfter string
@@ -129,9 +168,12 @@ func newNovelPullCmd(flags *rootFlags) *cobra.Command {
 				eids := make([]string, 0, take)
 				for _, e := range fetched {
 					eids = append(eids, e.EpisodeID)
-					// Advance the cursor only over episodes actually fetched,
-					// never over the ones a --limit/dogfood run skipped.
-					if e.LatestSnipUpdateTS > newestCursor {
+					// Advance the cursor only over episodes actually fetched, never
+					// over the ones a --limit/dogfood run skipped. Compare as real
+					// instants (not lexically) so a valid timestamp with a different
+					// offset or fractional precision can't sort as "newer" by string
+					// order and park the cursor before episodes it should cover.
+					if tsLater(e.LatestSnipUpdateTS, newestCursor) {
 						newestCursor = e.LatestSnipUpdateTS
 					}
 				}
@@ -157,12 +199,7 @@ func newNovelPullCmd(flags *rootFlags) *cobra.Command {
 				for _, s := range snips {
 					id := s.SnipID
 					if id == "" {
-						// A handful of snips export without a deep-link UUID; give
-						// them a CONTENT-stable synthetic id so a re-pull updates
-						// (not duplicates) the row even if batch order shifts.
-						h := fnv.New64a()
-						_, _ = h.Write([]byte(s.EpisodeID + "|" + s.Start + "|" + s.Title))
-						id = fmt.Sprintf("%s#%x", s.EpisodeID, h.Sum64())
+						id = fallbackSnipID(s)
 					}
 					raw, err := json.Marshal(s)
 					if err != nil {

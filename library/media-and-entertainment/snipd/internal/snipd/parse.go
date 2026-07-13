@@ -81,6 +81,12 @@ var (
 	uuidRE          = regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`)
 	guestLinkRE     = regexp.MustCompile(`\[([^\]]+)\]\([^)]*\)`)
 	iframeSrcRE     = regexp.MustCompile(`src="([^"]+)"`)
+	// snipSeparatorRE matches @@SNIP@@ only when it stands alone on its own line —
+	// exactly how the export template emits it. Splitting on this instead of the
+	// bare substring means the same token appearing inside a note, quote, or
+	// transcript is NOT mistaken for a snip boundary (which would shift field
+	// parsing and corrupt or drop snips).
+	snipSeparatorRE = regexp.MustCompile("(?m)^" + regexp.QuoteMeta(snipSeparator) + "$")
 )
 
 func init() {
@@ -221,7 +227,7 @@ func ParseEpisode(episodeID, raw string) (Episode, []Snip) {
 			body = parts[2]
 		}
 	}
-	chunks := strings.Split(body, snipSeparator)
+	chunks := snipSeparatorRE.Split(body, -1)
 	head := chunks[0]
 
 	ep := Episode{
