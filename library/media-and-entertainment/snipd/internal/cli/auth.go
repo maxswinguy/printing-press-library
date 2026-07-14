@@ -38,15 +38,17 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 		Example: "  snipd-pp-cli auth setup\n  snipd-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, "No setup URL is configured for this CLI; check the API's docs.")
-			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "Then set:")
-			fmt.Fprintln(w, "  export SNIPD_TOKEN=\"your-token-here\"")
-			fmt.Fprintln(w, "  snipd-pp-cli auth set-token <token>")
+			fmt.Fprintln(w, "Get your Snipd token with a one-time browser sign-in (no Obsidian, plugin, or mobile app needed):")
+			fmt.Fprintln(w, "  1. Generate a random UUID (e.g. uuidgen); call it X.")
+			fmt.Fprintln(w, "  2. Open https://app.snipd.com/obsidian/auth?uuid=X and sign in with your Snipd account.")
+			fmt.Fprintln(w, "  3. Open https://api.snipd.com/v1/public/api/obsidian/auth?uuid=X and copy the \"token\" value.")
+			fmt.Fprintln(w, "  4. Save it: snipd-pp-cli auth set-token <token>   (or export SNIPD_TOKEN=<token>)")
 			if !launch {
 				return nil
 			}
-			fmt.Fprintln(cmd.ErrOrStderr(), "no setup URL configured; cannot launch")
+			// --launch: print the sign-in URL to open (the per-user uuid is filled in at step 1).
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "Open in your browser: https://app.snipd.com/obsidian/auth?uuid=<your-uuid>")
 			return nil
 		},
 	}

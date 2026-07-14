@@ -114,7 +114,7 @@ func (c *Client) do(ctx context.Context, method, reqPath string, body []byte) ([
 			Body:       snippet(data),
 		}
 	case resp.StatusCode == http.StatusUnauthorized, resp.StatusCode == http.StatusForbidden:
-		return nil, fmt.Errorf("snipd auth failed (HTTP %d): set a valid SNIPD_TOKEN — re-pair the CLI from the Snipd app. %s",
+		return nil, fmt.Errorf("snipd auth failed (HTTP %d): set a valid SNIPD_TOKEN — get a fresh one from Snipd's browser sign-in (see README Authentication). %s",
 			resp.StatusCode, snippet(data))
 	case resp.StatusCode < 200 || resp.StatusCode >= 300:
 		return nil, fmt.Errorf("snipd API error (HTTP %d) for %s: %s", resp.StatusCode, reqPath, snippet(data))

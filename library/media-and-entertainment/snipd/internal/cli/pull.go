@@ -116,7 +116,7 @@ func newNovelPullCmd(flags *rootFlags) *cobra.Command {
 			}
 			if cfg.SnipdToken == "" {
 				return usageErr(fmt.Errorf("no SNIPD_TOKEN set — the export API requires your Snipd account token.\n" +
-					"Pair the CLI from the Snipd app, then: export SNIPD_TOKEN=<token>"))
+					"Get your token from Snipd's browser sign-in (no Obsidian needed; see README -> Authentication), then: snipd-pp-cli auth set-token <token>  (or export SNIPD_TOKEN=<token>)"))
 			}
 
 			// Generous timeout floor for a bulk pull; a larger explicit --timeout wins.

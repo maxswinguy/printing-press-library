@@ -120,7 +120,14 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Snipd's export API uses your account Bearer token, obtained by pairing the CLI from the Snipd mobile app. Set it once as SNIPD_TOKEN (or in the config file). It is read-only and never leaves your machine.
+Snipd's export API authenticates with **your own Snipd account Bearer token**. Get it with a one-time browser sign-in — **you don't need Obsidian, the Snipd Obsidian plugin, or the mobile app** (the page is titled "Obsidian integration" only because the CLI reuses Snipd's export API):
+
+1. Generate any random UUID — e.g. `uuidgen` — and call it `X`.
+2. Open `https://app.snipd.com/obsidian/auth?uuid=X` and sign in with your Snipd account (Google, Apple, or email).
+3. Open `https://api.snipd.com/v1/public/api/obsidian/auth?uuid=X` — it shows `{"token":"…"}`. Copy the token.
+4. Save it: `snipd-pp-cli auth set-token <token>` (or `export SNIPD_TOKEN=<token>` for one session).
+
+The token is personal and account-scoped — read-only, stored locally, and it never leaves your machine. If it stops working, repeat the steps for a fresh one (about a minute).
 
 ## Quick Start
 
@@ -362,5 +369,5 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 
 ### API-specific
 - **search/quote/filter return nothing** — Run `snipd-pp-cli pull` first — retrieval reads the local mirror, which is empty until you pull.
-- **401 / auth error on pull** — Your token expired. Re-pair the CLI from the Snipd app and set the new value as SNIPD_TOKEN.
+- **401 / auth error on pull** — Your token expired or was revoked. Get a fresh one with the browser sign-in in [Authentication](#authentication), then set it as SNIPD_TOKEN (or `snipd-pp-cli auth set-token <token>`).
 - **a search term returns fewer hits than expected** — Use plain stemmed words, not `*` prefixes — the index is porter-stemmed, so `run` already matches `running`.
