@@ -15,20 +15,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// validateDateFlag rejects a --since/--until value that isn't a date. The flags
-// feed a lexical comparison against episode publish_date (an ISO string), so an
-// unvalidated typo like "zzzz" is a perfectly valid SQL predicate that silently
-// returns an empty or misleading slice instead of an input error.
-func validateDateFlag(name, val string) error {
+// normalizeDateFlag validates a --since/--until value and normalizes it to the
+// YYYY-MM-DD granularity the stored episode publish_date uses. Two problems it
+// closes: an unvalidated typo like "zzzz" would otherwise be a perfectly valid
+// lexical SQL predicate that silently returns an empty/misleading slice; and a
+// full timestamp like "2026-01-15T00:00:00Z" compared lexically against a plain
+// "2026-01-15" would drop the boundary-day episode (the shorter stored string
+// sorts first). Comparing on the date part only keeps the range correct.
+func normalizeDateFlag(name, val string) (string, error) {
 	if val == "" {
-		return nil
+		return "", nil
 	}
 	for _, layout := range []string{"2006-01-02", time.RFC3339, time.RFC3339Nano, "2006-01-02T15:04:05"} {
-		if _, err := time.Parse(layout, val); err == nil {
-			return nil
+		if t, err := time.Parse(layout, val); err == nil {
+			return t.Format("2006-01-02"), nil
 		}
 	}
-	return fmt.Errorf("invalid --%s %q: expected a date (2006-01-02) or an RFC3339 timestamp", name, val)
+	return "", fmt.Errorf("invalid --%s %q: expected a date (2006-01-02) or an RFC3339 timestamp", name, val)
 }
 
 func newNovelFilterCmd(flags *rootFlags) *cobra.Command {
@@ -48,12 +51,15 @@ func newNovelFilterCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
 			}
-			if err := validateDateFlag("since", since); err != nil {
+			nSince, err := normalizeDateFlag("since", since)
+			if err != nil {
 				return err
 			}
-			if err := validateDateFlag("until", until); err != nil {
+			nUntil, err := normalizeDateFlag("until", until)
+			if err != nil {
 				return err
 			}
+			since, until = nSince, nUntil
 			if dryRunOK(flags) {
 				return nil
 			}
@@ -82,8 +88,9 @@ func newNovelFilterCmd(flags *rootFlags) *cobra.Command {
 				clauses = append(clauses, "EXISTS (SELECT 1 FROM json_each(data,'$.tags') WHERE lower(value) = lower(?))")
 				qargs = append(qargs, tag)
 			}
-			// Date range is on the parent episode's publish_date (ISO strings,
-			// lexicographically comparable). Match snips whose episode falls in range.
+			// Date range is on the parent episode's publish_date. Both sides are
+			// normalized to YYYY-MM-DD (see normalizeDateFlag), so lexical order is
+			// also chronological. Match snips whose episode falls in range.
 			if since != "" {
 				clauses = append(clauses, "json_extract(data,'$.episode_id') IN (SELECT id FROM resources WHERE resource_type='episodes' AND json_extract(data,'$.publish_date') >= ?)")
 				qargs = append(qargs, since)
