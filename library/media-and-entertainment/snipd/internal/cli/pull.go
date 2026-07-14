@@ -39,16 +39,21 @@ type pullResult struct {
 	DB            string `json:"db"`
 }
 
-// fallbackSnipID builds a content-stable synthetic id for a snip that exported
-// without a deep-link UUID. Hashing the full content (not just
-// episode+start+title) keeps a re-pull updating the same row, while stopping two
-// distinct same-start/same-title snips from colliding and silently overwriting
-// each other. A collision now requires every content field to match — i.e. the
-// two rows are genuine duplicates.
+// fallbackSnipID builds a synthetic id for a snip that exported without a
+// deep-link UUID. Such a snip has no server identity, so it is keyed by its
+// POSITION — the episode plus the clip's start/end timestamps. Position is the
+// right identity here because it is stable across content edits (editing a
+// note/quote/transcript never moves the clip), so a re-pull of an edited snip
+// updates the same row instead of duplicating it; and two snips at different
+// moments get different ids. Content can't be part of the key without
+// re-duplicating edited snips, and a bare start collides more than start+end, so
+// start+end is the balance. The only residual collision is two snips with a
+// byte-identical start AND end in one episode — the same captured clip — which is
+// the genuine-duplicate case. (This path only affects the handful of UUID-less
+// snips; the vast majority carry a stable deep-link UUID.)
 func fallbackSnipID(s snipd.Snip) string {
 	h := fnv.New64a()
-	_, _ = h.Write([]byte(s.EpisodeID + "\x1f" + s.Start + "\x1f" + s.Title +
-		"\x1f" + s.Note + "\x1f" + s.Quote + "\x1f" + s.Transcript))
+	_, _ = h.Write([]byte(s.EpisodeID + "\x1f" + s.Start + "\x1f" + s.End))
 	return fmt.Sprintf("%s#%x", s.EpisodeID, h.Sum64())
 }
 

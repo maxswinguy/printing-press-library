@@ -33,25 +33,31 @@ func TestNovelPullHelpWires(t *testing.T) {
 	}
 }
 
-// TestFallbackSnipIDDistinguishesDistinctSnips guards the UUID-less fallback id:
-// two snips sharing episode+start+title but with different content must NOT
-// collide (the second Upsert would silently overwrite the first), while the same
-// snip re-pulled must stay stable so a re-pull updates rather than duplicates.
-func TestFallbackSnipIDDistinguishesDistinctSnips(t *testing.T) {
-	base := snipd.Snip{EpisodeID: "ep1", Start: "15:11", Title: "Same Title"}
-	a := base
-	a.Note = "first note"
-	b := base
-	b.Note = "second note"
+// TestFallbackSnipIDIsPositionalAndEditStable guards the UUID-less fallback id: it
+// keys on the clip position (episode+start+end), so editing a snip's content does
+// NOT change its id (a re-pull updates the row instead of duplicating it), while
+// two snips at different clip spans still get different ids.
+func TestFallbackSnipIDIsPositionalAndEditStable(t *testing.T) {
+	base := snipd.Snip{EpisodeID: "ep1", Start: "15:11", End: "16:37", Note: "original", Title: "A"}
 
-	if fallbackSnipID(a) == fallbackSnipID(b) {
-		t.Fatal("distinct UUID-less snips sharing episode/start/title collided on the fallback id")
+	// Editing content (or the title) must NOT change the id — position is identity.
+	edited := base
+	edited.Note = "edited note"
+	edited.Quote = "new quote"
+	edited.Title = "renamed"
+	if fallbackSnipID(base) != fallbackSnipID(edited) {
+		t.Error("editing a UUID-less snip's content changed its id; a re-pull would duplicate it")
 	}
-	if fallbackSnipID(a) != fallbackSnipID(a) {
-		t.Fatal("fallbackSnipID is not content-stable across calls")
+
+	// Two snips at different clip spans must get different ids.
+	other := base
+	other.End = "17:00"
+	if fallbackSnipID(base) == fallbackSnipID(other) {
+		t.Error("snips at different clip spans collided on the fallback id")
 	}
-	if !strings.HasPrefix(fallbackSnipID(a), "ep1#") {
-		t.Fatalf("fallback id %q is not namespaced under the episode id", fallbackSnipID(a))
+
+	if !strings.HasPrefix(fallbackSnipID(base), "ep1#") {
+		t.Errorf("fallback id %q is not namespaced under the episode id", fallbackSnipID(base))
 	}
 }
 
