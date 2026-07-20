@@ -45,19 +45,47 @@ func TestFallbackSnipIDIsPositionalAndEditStable(t *testing.T) {
 	edited.Note = "edited note"
 	edited.Quote = "new quote"
 	edited.Title = "renamed"
-	if fallbackSnipID(base) != fallbackSnipID(edited) {
+	if fallbackSnipID(base, -1) != fallbackSnipID(edited, -1) {
 		t.Error("editing a UUID-less snip's content changed its id; a re-pull would duplicate it")
 	}
 
 	// Two snips at different clip spans must get different ids.
 	other := base
 	other.End = "17:00"
-	if fallbackSnipID(base) == fallbackSnipID(other) {
+	if fallbackSnipID(base, -1) == fallbackSnipID(other, -1) {
 		t.Error("snips at different clip spans collided on the fallback id")
 	}
 
-	if !strings.HasPrefix(fallbackSnipID(base), "ep1#") {
-		t.Errorf("fallback id %q is not namespaced under the episode id", fallbackSnipID(base))
+	if !strings.HasPrefix(fallbackSnipID(base, -1), "ep1#") {
+		t.Errorf("fallback id %q is not namespaced under the episode id", fallbackSnipID(base, -1))
+	}
+}
+
+// TestFallbackSnipIDBothEmptyTimesDistinguishedByOrdinal guards the case Greptile
+// flagged: when a UUID-less snip exports with no start AND no end, start+end alone
+// collapses every such snip in an episode to one key, silently overwriting. The
+// caller's per-episode ordinal must keep distinct snips distinct — while staying
+// stable (a re-pull at the same position updates the row, it doesn't duplicate).
+func TestFallbackSnipIDBothEmptyTimesDistinguishedByOrdinal(t *testing.T) {
+	a := snipd.Snip{EpisodeID: "ep1", Start: "", End: "", Note: "first"}
+	b := snipd.Snip{EpisodeID: "ep1", Start: "", End: "", Note: "second"}
+
+	// Same episode, both timestamps empty, distinct snips → distinct ordinals → distinct ids.
+	if fallbackSnipID(a, 0) == fallbackSnipID(b, 1) {
+		t.Error("two both-empty snips in one episode collided; one would overwrite the other")
+	}
+
+	// Same position → same id (a re-pull updates, not duplicates).
+	if fallbackSnipID(a, 0) != fallbackSnipID(a, 0) {
+		t.Error("both-empty fallback id is not stable at a fixed ordinal")
+	}
+
+	// Editing content at a fixed position must not change the id.
+	edited := a
+	edited.Note = "edited"
+	edited.Quote = "added"
+	if fallbackSnipID(a, 0) != fallbackSnipID(edited, 0) {
+		t.Error("editing a both-empty snip's content changed its id at the same ordinal")
 	}
 }
 

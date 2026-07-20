@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"hash/fnv"
+	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -47,13 +48,26 @@ type pullResult struct {
 // updates the same row instead of duplicating it; and two snips at different
 // moments get different ids. Content can't be part of the key without
 // re-duplicating edited snips, and a bare start collides more than start+end, so
-// start+end is the balance. The only residual collision is two snips with a
-// byte-identical start AND end in one episode — the same captured clip — which is
-// the genuine-duplicate case. (This path only affects the handful of UUID-less
+// start+end is the balance.
+//
+// When BOTH timestamps are empty (a snip exported with no start and no end),
+// start+end degenerates to one key for every such snip in an episode, silently
+// overwriting one with another. For that case only, the caller passes a
+// non-negative ordinal — the snip's position among the both-empty snips in its
+// episode, in export order — appended to keep them distinct. The ordinal is
+// stable across content edits (editing never reorders the export), so it
+// preserves the edit-stable property; its only cost is re-keying churn if a
+// both-empty snip is inserted or removed, which yields a harmless duplicate row
+// rather than data loss. Snips carrying any timestamp pass ordinal = -1 and keep
+// their existing ids. (This whole path only touches the handful of UUID-less
 // snips; the vast majority carry a stable deep-link UUID.)
-func fallbackSnipID(s snipd.Snip) string {
+func fallbackSnipID(s snipd.Snip, ordinal int) string {
 	h := fnv.New64a()
-	_, _ = h.Write([]byte(s.EpisodeID + "\x1f" + s.Start + "\x1f" + s.End))
+	key := s.EpisodeID + "\x1f" + s.Start + "\x1f" + s.End
+	if ordinal >= 0 {
+		key += "\x1f" + strconv.Itoa(ordinal)
+	}
+	_, _ = h.Write([]byte(key))
 	return fmt.Sprintf("%s#%x", s.EpisodeID, h.Sum64())
 }
 
@@ -201,10 +215,20 @@ func newNovelPullCmd(flags *rootFlags) *cobra.Command {
 						return fmt.Errorf("storing episode %s: %w", ep.EpisodeID, err)
 					}
 				}
+				// emptyTimeSeq gives a per-episode ordinal to UUID-less snips whose
+				// export omitted both timestamps; without it they'd share
+				// episode+""+"" and overwrite each other. Reset per batch — an
+				// episode's snips never span batches.
+				emptyTimeSeq := map[string]int{}
 				for _, s := range snips {
 					id := s.SnipID
 					if id == "" {
-						id = fallbackSnipID(s)
+						ordinal := -1
+						if s.Start == "" && s.End == "" {
+							ordinal = emptyTimeSeq[s.EpisodeID]
+							emptyTimeSeq[s.EpisodeID]++
+						}
+						id = fallbackSnipID(s, ordinal)
 					}
 					raw, err := json.Marshal(s)
 					if err != nil {
